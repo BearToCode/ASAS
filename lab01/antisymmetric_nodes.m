@@ -13,6 +13,8 @@ function [xi] = antisymmetric_nodes(n_modes)
     xi = zeros(n_modes, 1);
     xi(1:3) = [1.841; 5.329; 8.531];
 
+    xi = xi(1:n_modes);
+
     for k = 4:n_modes
         xi(k) = xi(k - 1) + pi;
     end

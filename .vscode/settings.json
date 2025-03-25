@@ -1,16 +1,21 @@
 {
   "cSpell.words": [
     "addpath",
+    "analitycal",
     "antisimmetric",
     "Benassi",
     "blkdiag",
     "Diambri",
     "disp",
     "Dozio",
+    "dsolve",
+    "dtheta",
     "fprintf",
     "genpath",
+    "ilaplace",
     "linearization",
     "linearizing",
+    "odefun",
     "Pellizzer",
     "syms",
     "xdotdot"
