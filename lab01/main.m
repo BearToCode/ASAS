@@ -21,6 +21,7 @@ sys_undamped = sloshing_undamped(pendulums, params);
 figure;
 impulse(sys_undamped, 10);
 grid on;
+title('Impulse response of the undamped system, n = 10');
 
 %% Task 2b: Include in the previous EOM and related state-space
 % model a modal damping ratio 𝛾n for each component
@@ -31,6 +32,7 @@ sys_damped = sloshing_damped(pendulums, params, damping);
 figure;
 impulse(sys_damped, 10);
 grid on;
+title('Impulse response of the damped system, n = 10');
 
 %% Task 3: Using a reduced-order damped mechanical model
 % including only the first fundamental slosh mode (first
@@ -52,18 +54,19 @@ sys_damped = sloshing_damped(pendulums, params, damping);
 
 % 2: analytical solution
 
-% s * X = A * X + B * U
-% (s * I - A) * X = B * U
-% X = (s * I - A)^-1 * B * U
-% Y = C * X + D * U = C * (s * I - A)^-1 * B * U + D * U
+delta = 1; % Initial impulse
+m = pendulums.m(1);
+L = pendulums.L(1);
+g = params.g;
+w_n = pendulums.w_n(1);
+w = w_n * sqrt(1 - damping ^ 2);
 
-syms s t;
-U = 1;
-Y = simplify(sys_damped.C / (s * eye(size(sys_damped.A)) - sys_damped.A) * sys_damped.B * U + sys_damped.D * U);
-y = matlabFunction(ilaplace(Y, s, t));
-
+f_analitycal = @(t) (m * g / (w_n * L) - 2 * damping ^ 2 * w_n) * ...
+    (-delta) * exp(-damping * w_n * t) * sin(w * t) + ...
+    2 * damping * w * (-delta) * exp(-damping * w_n * t) * ...
+    cos(w * t) + (m) * (-delta);
 t_analitycal = 0:0.01:t_f;
-y_analitycal = y(t_analitycal);
+y_analitycal = arrayfun(f_analitycal, t_analitycal);
 
 % 3: TODO: analytical solution in modal form
 
