@@ -11,6 +11,7 @@
     "Dozio",
     "dsolve",
     "dtheta",
+    "expm",
     "fprintf",
     "genpath",
     "ilaplace",
@@ -19,7 +20,9 @@
     "odefun",
     "Pellizzer",
     "syms",
-    "xdotdot"
+    "xdotdot",
+    "xlabel",
+    "ylabel"
   ],
   "[matlab]": {
     "editor.defaultFormatter": "AffenWiesel.matlab-formatter"

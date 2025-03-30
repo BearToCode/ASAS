@@ -33,19 +33,13 @@ function sys = sloshing_damped(pendulums, params, damping)
         A = blkdiag(A, [0 1; -pendulums.w_n(i) ^ 2, -2 * damping * pendulums.w_n(i)]);
     end
 
-    % Add the final d/dt x0'
-    A = blkdiag(A, 0);
-
-    B = zeros(2 * pendulums.n + 1, 1);
+    B = zeros(2 * pendulums.n, 1);
 
     for i = 1:pendulums.n
         B(2 * i - 1:2 * i) = [0; -1 / pendulums.L(i)];
     end
 
-    % Add the final contribution to d/dt x0' from u
-    B(2 * pendulums.n + 1) = 1;
-
-    C = zeros(1, 2 * pendulums.n + 1);
+    C = zeros(1, 2 * pendulums.n);
 
     for i = 1:pendulums.n
         C(2 * i - 1) = params.g * pendulums.m(i);
