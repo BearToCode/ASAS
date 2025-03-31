@@ -2,12 +2,23 @@ clc; clear;
 
 addpath(genpath('.'));
 
-params.density = 1000;
-params.h = 1;
-params.d = 1;
-params.g = 9.81;
+params.density = 1000; % [kg/m^3]
+params.h = 1; % [m]
+params.d = 1; % [m]
+params.g = 9.81; % [m/s^2]
 
 damping = 0.003;
+
+%% Task 1: According to an equivalent mechanical model
+% of the sloshing dynamics of the cylindrical tank,
+% show the formulas and the corresponding
+% numerical values of the parameters (masses
+% mn, lengths ln, fixed mass m0, natural
+% frequencies 𝜔n(rad/s) and fn (Hz)) of the
+% multi-pendulum model encompassing the
+% first 10 slosh modes (n = 1,…,10).
+
+pendulums = sloshing_pendulums(params, 10);
 
 %% Task 2a: Derive the set of linearized EOM and the corresponding
 % state-space formulation for the multi-pendulum model
@@ -15,13 +26,16 @@ damping = 0.003;
 % acceleration of the tank and as output the net force F_x
 % exerted on the tank along x-direction.
 
-pendulums = sloshing_pendulums(params, 10);
+% TODO: verify that in all cases theta remains small enough to use the linearized EOM
+
 sys_undamped = sloshing_undamped(pendulums, params);
 
 figure;
 impulse(sys_undamped, 10);
 grid on;
 title('Impulse response of the undamped system, n = 10');
+xlabel('Time [s]');
+ylabel('$F_x$ [N]', 'Interpreter', 'latex');
 
 %% Task 2b: Include in the previous EOM and related state-space
 % model a modal damping ratio 𝛾n for each component
@@ -33,6 +47,8 @@ figure;
 impulse(sys_damped, 10);
 grid on;
 title('Impulse response of the damped system, n = 10');
+xlabel('Time [s]');
+ylabel('$F_x$ [N]', 'Interpreter', 'latex');
 
 %% Task 3: Using a reduced-order damped mechanical model
 % including only the first fundamental slosh mode (first
@@ -44,22 +60,24 @@ title('Impulse response of the damped system, n = 10');
 % 3. the analytical solution in modal form;
 % 4. a numerical integration technique.
 
+t_i = 0;
 t_f = 10;
+t_step = 0.01;
+t_intervals = t_i:t_step:t_f;
 
 pendulums = sloshing_pendulums(params, 1);
 sys_damped = sloshing_damped(pendulums, params, damping);
 
 % 1: built-in function "impulse"
-[y_impulse, t_impulse] = impulse(sys_damped, t_f);
+[y_impulse, t_impulse] = impulse(sys_damped, t_intervals);
 
 % 2: analytical solution
 syms s t;
-H = sys_damped.C / (s * eye(size(sys_damped.A)) - sys_damped.A) * sys_damped.B;
+H = sys_damped.C / (s * eye(size(sys_damped.A)) - sys_damped.A) * sys_damped.B + sys_damped.D;
 Y = H * 1;
 f_analitycal = matlabFunction(ilaplace(Y, s, t));
 
-t_analitycal = 0:0.01:t_f;
-y_analitycal = arrayfun(f_analitycal, t_analitycal);
+y_analitycal = arrayfun(f_analitycal, t_intervals);
 
 % 3: analytical solution in modal form
 [eig_vectors_A, eig_values_A] = eig(sys_damped.A);
@@ -73,25 +91,28 @@ sys_modal_C = sys_damped.C * V;
 sys_modal_D = sys_damped.D;
 sys_modal = ss(sys_modal_A, sys_modal_B, sys_modal_C, sys_modal_D);
 
-f_modal = @(t) sys_damped.C * V * expm(lambda * t) * V_inv * sys_damped.B;
+% TODO: comment the missing D term in the modal form
+f_modal = @(t) sys_modal.C * diag(exp(diag(lambda * t))) * sys_modal.B;
 
-t_modal = 0:0.01:t_f;
-y_modal = arrayfun(f_modal, t_modal);
+y_modal = arrayfun(f_modal, t_intervals);
 
 % 4: numerical integration technique
 
 % The impulse force is applied through the initial condition
 x0 = [0; -1 / pendulums.L(1)];
 
+% Comment how the impulse contributes to the initial condition, through conservation of momentum
 odefun = @(t, x) sys_damped.A * x;
+
 [t_numerical, x_numerical] = ode45(odefun, [0, t_f], x0);
+% TODO: look for MATLAB docs in impulse response to see how to handle D in the impulse response
 y_numerical = sys_damped.C * x_numerical';
 
 figure;
-plot(t_impulse, y_impulse, 'DisplayName', 'impulse');
+plot(t_intervals, y_impulse, 'DisplayName', 'impulse');
 hold on;
-plot(t_analitycal, y_analitycal, 'DisplayName', 'analitycal');
-plot(t_modal, y_modal, 'DisplayName', 'modal');
+plot(t_intervals, y_analitycal, 'DisplayName', 'analitycal');
+plot(t_intervals, y_modal, 'DisplayName', 'modal');
 plot(t_numerical, y_numerical, 'DisplayName', 'numerical');
 grid on;
 legend;
@@ -102,8 +123,7 @@ legend;
 % an impulse acceleration of the tank.
 
 n_options = 1:10;
-t = 0:0.01:t_f;
-y = zeros(length(n_options), length(t));
+y = zeros(length(n_options), length(t_intervals));
 
 for n = n_options
     pendulums = sloshing_pendulums(params, n);
@@ -115,7 +135,7 @@ for n = n_options
     lambda = eig_values_A;
     V_inv = V \ eye(size(V));
 
-    y(n, :) = arrayfun(@(t) real(sys_damped.C * V * expm(lambda * t) * V_inv * sys_damped.B), t);
+    y(n, :) = arrayfun(@(t) real(sys_damped.C * V * diag(exp(diag(lambda * t))) * V_inv * sys_damped.B), t_intervals);
 end
 
 reference_y = y(end, :);
@@ -136,16 +156,16 @@ plot(n_options(1:end - 1), max_errors, 'DisplayName', 'Max error');
 grid on;
 xlabel('Order n of the model');
 ylabel('Error [%]');
-title('Error in the impulse response of the damped system for different orders n');
+title('Relative error with respect to the maximum value of the reference model');
 legend('Location', 'best');
 hold off;
 
 figure;
-plot(t, y(1, :), 'DisplayName', 'n = 1');
+plot(t_intervals, y(1, :), 'DisplayName', 'n = 1');
 hold on;
 
 for i = 2:length(n_options)
-    plot(t, y(i, :), 'DisplayName', ['n = ', num2str(i)]);
+    plot(t_intervals, y(i, :), 'DisplayName', ['n = ', num2str(i)]);
 end
 
 grid on;
@@ -190,11 +210,17 @@ odefun = @(t, x) sys_damped.A * x + sys_damped.B;
 
 y_numerical = sys_damped.C * x_numerical' + sys_damped.D * u(t_numerical);
 
+% Extra: add response with "frozen liquid"
+t_frozen = 0:0.01:t_f;
+total_mass = sum(pendulums.m) + pendulums.m0;
+y_frozen = arrayfun(@(t) total_mass * u(t), t_frozen);
+
 figure;
 plot(t_step, y_step, 'DisplayName', 'step');
 hold on;
 plot(t_step_analitycal, y_step_analitycal, 'DisplayName', 'analitycal');
 plot(t_numerical, y_numerical, 'DisplayName', 'numerical');
+plot(t_frozen, y_frozen, 'DisplayName', 'frozen liquid');
 grid on;
 xlabel('Time [s]');
 ylabel('Step response [N]');
@@ -208,6 +234,9 @@ hold off;
 % displacement of the tank and as output the net
 % force Fx exerted on the tank along x-direction.
 % Show and comment every step of the derivation.
+
+% TODO: now use x tank as input
+% TODO: do not use symbolics
 
 figure;
 bode(sys_damped, {0.1, 100});
