@@ -212,7 +212,7 @@ y_numerical = sys_damped.C * x_numerical' + sys_damped.D * u(t_numerical);
 
 % Extra: add response with "frozen liquid"
 t_frozen = 0:0.01:t_f;
-total_mass = sum(pendulums.m) + pendulums.m0;
+total_mass = -sum(pendulums.m) - pendulums.m0;
 y_frozen = arrayfun(@(t) total_mass * u(t), t_frozen);
 
 figure;
@@ -235,20 +235,23 @@ hold off;
 % force Fx exerted on the tank along x-direction.
 % Show and comment every step of the derivation.
 
-% TODO: now use x tank as input
-% TODO: do not use symbolics
+amplitude = @(omega) (sys_damped.C / (1i * omega * eye(size(sys_damped.A)) - sys_damped.A) * sys_damped.B + sys_damped.D) .* (-omega .^ 2);
+phase = @(omega) angle((sys_damped.C / (1i * omega * eye(size(sys_damped.A)) - sys_damped.A) * sys_damped.B + sys_damped.D) .* (-omega .^ 2));
+
+omega = logspace(-1, 2, 1000); % Frequency range for the Bode plot
+amplitude_values = arrayfun(amplitude, omega);
+phase_values = arrayfun(phase, omega);
 
 figure;
-bode(sys_damped, {0.1, 100});
+semilogx(omega, 20 * log10(abs(amplitude_values)), 'DisplayName', 'Amplitude');
 grid on;
-title('Bode plot of the damped system, n = 4');
-
-% Add the frequency response for n = 1 for reference
-
-pendulums = sloshing_pendulums(params, 1);
-sys_damped = sloshing_damped(pendulums, params, damping);
+xlabel('Frequency [rad/s]');
+ylabel('Magnitude [dB]');
+title('Frequency response of the damped system, n = 4');
 
 figure;
-bode(sys_damped, {0.1, 100});
+semilogx(omega, phase_values * 180 / pi, 'DisplayName', 'Phase');
 grid on;
-title('Bode plot of the damped system, n = 1');
+xlabel('Frequency [rad/s]');
+ylabel('Phase [degrees]');
+title('Frequency response of the damped system, n = 4');

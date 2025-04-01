@@ -44,7 +44,7 @@ function sys = sloshing_undamped(pendulums, params)
         C(2 * i - 1) = params.g * pendulums.m(i);
     end
 
-    D = sum(pendulums.m) + pendulums.m0;
+    D = -pendulums.m0;
 
     sys = ss(A, B, C, D);
 end
