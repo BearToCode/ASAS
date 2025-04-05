@@ -150,9 +150,9 @@ for i = 1:length(n_options) - 1
 end
 
 figure;
-plot(n_options(1:end - 1), avg_errors, 'DisplayName', 'Average error');
+plot(n_options(1:end - 1), 100.*avg_errors, 'DisplayName', 'Average error');
 hold on;
-plot(n_options(1:end - 1), max_errors, 'DisplayName', 'Max error');
+plot(n_options(1:end - 1), 100.*max_errors, 'DisplayName', 'Max error');
 grid on;
 xlabel('Order n of the model');
 ylabel('Error [%]');
