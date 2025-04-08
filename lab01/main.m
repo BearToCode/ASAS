@@ -174,8 +174,6 @@ for i = 2:length(n_options)
     plot(t_intervals, y(i, :), 'DisplayName', ['n = ', num2str(i)]);
 end
 
-plot(t_intervals, y_reference, 'DisplayName', 'n = 100', 'LineWidth', 2);
-
 grid on;
 xlabel('Time [s]');
 ylabel('Impulse response [N]');
