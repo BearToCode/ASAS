@@ -24,7 +24,8 @@
     "syms",
     "xdotdot",
     "xlabel",
-    "ylabel"
+    "ylabel",
+    "yline"
   ],
   "[matlab]": {
     "editor.defaultFormatter": "AffenWiesel.matlab-formatter"
