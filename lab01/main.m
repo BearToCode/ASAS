@@ -26,8 +26,6 @@ pendulums = sloshing_pendulums(params, 10);
 % acceleration of the tank and as output the net force F_x
 % exerted on the tank along x-direction.
 
-% TODO: verify that in all cases theta remains small enough to use the linearized EOM
-
 sys_undamped = sloshing_undamped(pendulums, params);
 
 figure;
@@ -159,7 +157,7 @@ hold on;
 plot(n_options(1:end), 100 .* max_errors, 'DisplayName', 'Max error');
 
 % Trace a line at 1% error
-yline(1, 'r--', '1% error', 'LabelHorizontalAlignment', 'left', 'LabelVerticalAlignment', 'bottom', 'LabelOrientation', 'horizontal');
+yline(1, 'r--', '1% error', 'LabelHorizontalAlignment', 'left', 'LabelVerticalAlignment', 'bottom', 'LabelOrientation', 'horizontal', 'DisplayName', '1% error');
 
 grid on;
 xlabel('Order n of the model');
@@ -168,7 +166,7 @@ title('Relative error with respect to the maximum value of the reference model')
 legend('Location', 'best');
 hold off;
 
-figure;
+error_multiple_figure = figure;
 plot(t_intervals, y(1, :), 'DisplayName', 'n = 1');
 hold on;
 
@@ -225,7 +223,7 @@ t_frozen = 0:0.01:t_f;
 total_mass = -sum(pendulums.m) - pendulums.m0;
 y_frozen = arrayfun(@(t) total_mass * u(t), t_frozen);
 
-figure;
+step_response_figure = figure;
 plot(t_step, y_step, 'DisplayName', 'Step');
 hold on;
 plot(t_step_analitycal, y_step_analitycal, 'DisplayName', 'Analitycal');
@@ -261,7 +259,7 @@ slosh_phase_values = arrayfun(slosh_phase, omega);
 frozen_amplitude_values = arrayfun(frozen_amplitude, omega);
 frozen_phase_values = arrayfun(frozen_phase, omega);
 
-figure;
+amplitude_figure = figure;
 semilogx(omega, 20 * log10(slosh_amplitude_values), 'DisplayName', 'Amplitude');
 hold on;
 semilogx(omega, 20 * log10(frozen_amplitude_values), 'DisplayName', 'Frozen liquid');
@@ -272,7 +270,7 @@ ylabel('Magnitude [dB]');
 title('Frequency response of the damped system, n = 5');
 legend('Location', 'best');
 
-figure;
+phase_figure = figure;
 semilogx(omega, slosh_phase_values * 180 / pi, 'DisplayName', 'Phase');
 hold on;
 semilogx(omega, frozen_phase_values * 180 / pi, 'DisplayName', 'Frozen liquid');
