@@ -2,12 +2,23 @@ clc; clear;
 
 addpath(genpath('.'));
 
-params.density = 1000;
-params.h = 1;
-params.d = 1;
-params.g = 9.81;
+params.density = 1000; % [kg/m^3]
+params.h = 1; % [m]
+params.d = 1; % [m]
+params.g = 9.81; % [m/s^2]
 
 damping = 0.003;
+
+%% Task 1: According to an equivalent mechanical model
+% of the sloshing dynamics of the cylindrical tank,
+% show the formulas and the corresponding
+% numerical values of the parameters (masses
+% mn, lengths ln, fixed mass m0, natural
+% frequencies 𝜔n(rad/s) and fn (Hz)) of the
+% multi-pendulum model encompassing the
+% first 10 slosh modes (n = 1,…,10).
+
+pendulums = sloshing_pendulums(params, 10);
 
 %% Task 2a: Derive the set of linearized EOM and the corresponding
 % state-space formulation for the multi-pendulum model
@@ -15,13 +26,16 @@ damping = 0.003;
 % acceleration of the tank and as output the net force F_x
 % exerted on the tank along x-direction.
 
-pendulums = sloshing_pendulums(params, 10);
+% TODO: verify that in all cases theta remains small enough to use the linearized EOM
+
 sys_undamped = sloshing_undamped(pendulums, params);
 
 figure;
 impulse(sys_undamped, 10);
 grid on;
 title('Impulse response of the undamped system, n = 10');
+xlabel('Time [s]');
+ylabel('$F_x$ [N]', 'Interpreter', 'latex');
 
 %% Task 2b: Include in the previous EOM and related state-space
 % model a modal damping ratio 𝛾n for each component
@@ -33,6 +47,8 @@ figure;
 impulse(sys_damped, 10);
 grid on;
 title('Impulse response of the damped system, n = 10');
+xlabel('Time [s]');
+ylabel('$F_x$ [N]', 'Interpreter', 'latex');
 
 %% Task 3: Using a reduced-order damped mechanical model
 % including only the first fundamental slosh mode (first
@@ -44,20 +60,19 @@ title('Impulse response of the damped system, n = 10');
 % 3. the analytical solution in modal form;
 % 4. a numerical integration technique.
 
+t_i = 0;
 t_f = 10;
+t_step = 0.01;
+t_intervals = t_i:t_step:t_f;
 
 pendulums = sloshing_pendulums(params, 1);
 sys_damped = sloshing_damped(pendulums, params, damping);
 
 % 1: built-in function "impulse"
-[y_impulse, t_impulse] = impulse(sys_damped, t_f);
+[y_impulse, t_impulse] = impulse(sys_damped, t_intervals);
 
 % 2: analytical solution
-syms s t;
-H = sys_damped.C / (s * eye(size(sys_damped.A)) - sys_damped.A) * sys_damped.B;
-Y = H * 1;
-f_analitycal = matlabFunction(ilaplace(Y, s, t));
-
+f_analitycal = @(t) sys_damped.C * expm(sys_damped.A * t) * sys_damped.B;
 t_analitycal = 0:0.01:t_f;
 y_analitycal = arrayfun(f_analitycal, t_analitycal);
 
@@ -73,27 +88,32 @@ sys_modal_C = sys_damped.C * V;
 sys_modal_D = sys_damped.D;
 sys_modal = ss(sys_modal_A, sys_modal_B, sys_modal_C, sys_modal_D);
 
-f_modal = @(t) sys_damped.C * V * expm(lambda * t) * V_inv * sys_damped.B;
+f_modal = @(t) sys_modal.C * diag(exp(diag(lambda * t))) * sys_modal.B;
 
-t_modal = 0:0.01:t_f;
-y_modal = arrayfun(f_modal, t_modal);
+y_modal = arrayfun(f_modal, t_intervals);
 
 % 4: numerical integration technique
 
 % The impulse force is applied through the initial condition
 x0 = [0; -1 / pendulums.L(1)];
 
+% Comment how the impulse contributes to the initial condition, through conservation of momentum
 odefun = @(t, x) sys_damped.A * x;
+
 [t_numerical, x_numerical] = ode45(odefun, [0, t_f], x0);
 y_numerical = sys_damped.C * x_numerical';
 
-figure;
-plot(t_impulse, y_impulse, 'DisplayName', 'impulse');
+impulse_figure = figure;
+plot(t_intervals, y_impulse, 'DisplayName', 'Impulse');
 hold on;
-plot(t_analitycal, y_analitycal, 'DisplayName', 'analitycal');
-plot(t_modal, y_modal, 'DisplayName', 'modal');
-plot(t_numerical, y_numerical, 'DisplayName', 'numerical');
+plot(t_intervals, y_analitycal, 'DisplayName', 'Analitycal');
+plot(t_intervals, y_modal, 'DisplayName', 'Modal');
+plot(t_numerical, y_numerical, 'DisplayName', 'Numerical');
 grid on;
+title('Impulse response of the damped system, n = 1');
+xlabel('Time [s]');
+ylabel('$F_x$ [N]', 'Interpreter', 'latex');
+hold off;
 legend;
 
 %% Task 4: Find the required order n of the damped multi-
@@ -102,8 +122,8 @@ legend;
 % an impulse acceleration of the tank.
 
 n_options = 1:10;
-t = 0:0.01:t_f;
-y = zeros(length(n_options), length(t));
+n_reference = 100;
+y = zeros(length(n_options), length(t_intervals));
 
 for n = n_options
     pendulums = sloshing_pendulums(params, n);
@@ -115,38 +135,48 @@ for n = n_options
     lambda = eig_values_A;
     V_inv = V \ eye(size(V));
 
-    y(n, :) = arrayfun(@(t) real(sys_damped.C * V * expm(lambda * t) * V_inv * sys_damped.B), t);
+    y(n, :) = arrayfun(@(t) real(sys_damped.C * V * diag(exp(diag(lambda * t))) * V_inv * sys_damped.B), t_intervals);
 end
 
-reference_y = y(end, :);
-max_y = max(abs(reference_y));
+pendulums = sloshing_pendulums(params, n_reference);
+sys_damped = sloshing_damped(pendulums, params, damping);
 
-avg_errors = zeros(length(n_options) - 1, 1);
-max_errors = zeros(length(n_options) - 1, 1);
+y_reference = impulse(sys_damped, t_intervals)';
 
-for i = 1:length(n_options) - 1
-    avg_errors(i) = mean(abs(y(i, :) - reference_y)) / max_y;
-    max_errors(i) = max(abs(y(i, :) - reference_y)) / max_y;
+max_y = max(abs(y_reference));
+
+avg_errors = zeros(length(n_options), 1);
+max_errors = zeros(length(n_options), 1);
+
+for i = 1:length(n_options)
+    avg_errors(i) = mean(abs(y(i, :) - y_reference)) / max_y;
+    max_errors(i) = max(abs(y(i, :) - y_reference)) / max_y;
 end
 
-figure;
-plot(n_options(1:end - 1), avg_errors, 'DisplayName', 'Average error');
+error_figure = figure;
+plot(n_options(1:end), 100 .* avg_errors, 'DisplayName', 'Average error');
 hold on;
-plot(n_options(1:end - 1), max_errors, 'DisplayName', 'Max error');
+plot(n_options(1:end), 100 .* max_errors, 'DisplayName', 'Max error');
+
+% Trace a line at 1% error
+yline(1, 'r--', '1% error', 'LabelHorizontalAlignment', 'left', 'LabelVerticalAlignment', 'bottom', 'LabelOrientation', 'horizontal');
+
 grid on;
 xlabel('Order n of the model');
 ylabel('Error [%]');
-title('Error in the impulse response of the damped system for different orders n');
+title('Relative error with respect to the maximum value of the reference model');
 legend('Location', 'best');
 hold off;
 
 figure;
-plot(t, y(1, :), 'DisplayName', 'n = 1');
+plot(t_intervals, y(1, :), 'DisplayName', 'n = 1');
 hold on;
 
 for i = 2:length(n_options)
-    plot(t, y(i, :), 'DisplayName', ['n = ', num2str(i)]);
+    plot(t_intervals, y(i, :), 'DisplayName', ['n = ', num2str(i)]);
 end
+
+plot(t_intervals, y_reference, 'DisplayName', 'n = 100', 'LineWidth', 2);
 
 grid on;
 xlabel('Time [s]');
@@ -165,7 +195,7 @@ hold off;
 
 t_f = 100;
 
-n = 4; % Order of the model
+n = 5; % Order of the model
 pendulums = sloshing_pendulums(params, n);
 sys_damped = sloshing_damped(pendulums, params, damping);
 
@@ -173,16 +203,16 @@ sys_damped = sloshing_damped(pendulums, params, damping);
 [y_step, t_step] = step(sys_damped, t_f);
 
 % 2: analytical solution
-syms s t;
-H = sys_damped.C / (s * eye(size(sys_damped.A)) - sys_damped.A) * sys_damped.B + sys_damped.D;
-Y = H * 1 / s;
-f_step = matlabFunction(ilaplace(Y, s, t));
+
+u = @(t) 1;
 
 t_step_analitycal = 0:0.01:t_f;
-y_step_analitycal = arrayfun(f_step, t_step_analitycal);
+C_inv_A = sys_damped.C / sys_damped.A;
+
+f_analitycal = @(t) C_inv_A * (expm(sys_damped.A * t) - eye(size(sys_damped.A))) * sys_damped.B + sys_damped.D * u(t);
+y_step_analitycal = arrayfun(f_analitycal, t_step_analitycal);
 
 % 3: numerical integration technique
-u = @(t) 1;
 x0 = zeros(2 * n, 1); % Initial condition for the state vector
 
 odefun = @(t, x) sys_damped.A * x + sys_damped.B;
@@ -190,15 +220,21 @@ odefun = @(t, x) sys_damped.A * x + sys_damped.B;
 
 y_numerical = sys_damped.C * x_numerical' + sys_damped.D * u(t_numerical);
 
+% Extra: add response with "frozen liquid"
+t_frozen = 0:0.01:t_f;
+total_mass = -sum(pendulums.m) - pendulums.m0;
+y_frozen = arrayfun(@(t) total_mass * u(t), t_frozen);
+
 figure;
-plot(t_step, y_step, 'DisplayName', 'step');
+plot(t_step, y_step, 'DisplayName', 'Step');
 hold on;
-plot(t_step_analitycal, y_step_analitycal, 'DisplayName', 'analitycal');
-plot(t_numerical, y_numerical, 'DisplayName', 'numerical');
+plot(t_step_analitycal, y_step_analitycal, 'DisplayName', 'Analitycal');
+plot(t_numerical, y_numerical, 'DisplayName', 'Numerical');
+plot(t_frozen, y_frozen, 'DisplayName', 'Frozen liquid');
 grid on;
 xlabel('Time [s]');
 ylabel('Step response [N]');
-title('Step response of the damped system for n = 4');
+title('Step response of the damped system for n = 5');
 legend('Location', 'best');
 hold off;
 
@@ -209,17 +245,40 @@ hold off;
 % force Fx exerted on the tank along x-direction.
 % Show and comment every step of the derivation.
 
+% Compare this response with that obtained by
+% considering a “frozen liquid” (no sloshing).
+
+slosh_amplitude = @(omega) abs((sys_damped.C / (1i * omega * eye(size(sys_damped.A)) - sys_damped.A) * sys_damped.B + sys_damped.D) .* (-omega .^ 2));
+slosh_phase = @(omega) angle((sys_damped.C / (1i * omega * eye(size(sys_damped.A)) - sys_damped.A) * sys_damped.B + sys_damped.D) .* (-omega .^ 2));
+
+frozen_amplitude = @(omega) abs((-sum(pendulums.m) - pendulums.m0) .* (-omega .^ 2));
+frozen_phase = @(omega) angle((-sum(pendulums.m) - pendulums.m0) .* (-omega .^ 2));
+
+omega = logspace(-1, 2, 1000); % Frequency range for the Bode plot
+slosh_amplitude_values = arrayfun(slosh_amplitude, omega);
+slosh_phase_values = arrayfun(slosh_phase, omega);
+
+frozen_amplitude_values = arrayfun(frozen_amplitude, omega);
+frozen_phase_values = arrayfun(frozen_phase, omega);
+
 figure;
-bode(sys_damped, {0.1, 100});
+semilogx(omega, 20 * log10(slosh_amplitude_values), 'DisplayName', 'Amplitude');
+hold on;
+semilogx(omega, 20 * log10(frozen_amplitude_values), 'DisplayName', 'Frozen liquid');
+hold off;
 grid on;
-title('Bode plot of the damped system, n = 4');
-
-% Add the frequency response for n = 1 for reference
-
-pendulums = sloshing_pendulums(params, 1);
-sys_damped = sloshing_damped(pendulums, params, damping);
+xlabel('Frequency [rad/s]');
+ylabel('Magnitude [dB]');
+title('Frequency response of the damped system, n = 5');
+legend('Location', 'best');
 
 figure;
-bode(sys_damped, {0.1, 100});
+semilogx(omega, slosh_phase_values * 180 / pi, 'DisplayName', 'Phase');
+hold on;
+semilogx(omega, frozen_phase_values * 180 / pi, 'DisplayName', 'Frozen liquid');
+hold off;
 grid on;
-title('Bode plot of the damped system, n = 1');
+xlabel('Frequency [rad/s]');
+ylabel('Phase [degrees]');
+title('Frequency response of the damped system, n = 5');
+legend('Location', 'best');

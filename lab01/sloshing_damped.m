@@ -46,7 +46,7 @@ function sys = sloshing_damped(pendulums, params, damping)
         C(2 * i) = 2 * damping * pendulums.w_n(i) * pendulums.L(i) * pendulums.m(i);
     end
 
-    D = sum(pendulums.m) + pendulums.m0;
+    D = -pendulums.m0;
 
     sys = ss(A, B, C, D);
 end
