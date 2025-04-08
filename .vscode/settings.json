@@ -1,13 +1,30 @@
 {
   "cSpell.words": [
+    "addpath",
+    "analitycal",
+    "antisimmetric",
+    "arrayfun",
     "Benassi",
+    "blkdiag",
     "Diambri",
     "disp",
     "Dozio",
+    "dsolve",
+    "dtheta",
+    "expm",
     "fprintf",
-    "Pellizzer"
+    "genpath",
+    "ilaplace",
+    "linearization",
+    "linearizing",
+    "odefun",
+    "Pellizzer",
+    "syms",
+    "xdotdot",
+    "xlabel",
+    "ylabel"
   ],
   "[matlab]": {
-    "editor.defaultFormatter": "MathWorks.language-matlab"
+    "editor.defaultFormatter": "AffenWiesel.matlab-formatter"
   }
 }
