@@ -72,12 +72,9 @@ sys_damped = sloshing_damped(pendulums, params, damping);
 [y_impulse, t_impulse] = impulse(sys_damped, t_intervals);
 
 % 2: analytical solution
-syms s t;
-H = sys_damped.C / (s * eye(size(sys_damped.A)) - sys_damped.A) * sys_damped.B + sys_damped.D;
-Y = H * 1;
-f_analitycal = matlabFunction(ilaplace(Y, s, t));
-
-y_analitycal = arrayfun(f_analitycal, t_intervals);
+f_analitycal = @(t) sys_damped.C * expm(sys_damped.A * t) * sys_damped.B;
+t_analitycal = 0:0.01:t_f;
+y_analitycal = arrayfun(f_analitycal, t_analitycal);
 
 % 3: analytical solution in modal form
 [eig_vectors_A, eig_values_A] = eig(sys_damped.A);
@@ -91,7 +88,6 @@ sys_modal_C = sys_damped.C * V;
 sys_modal_D = sys_damped.D;
 sys_modal = ss(sys_modal_A, sys_modal_B, sys_modal_C, sys_modal_D);
 
-% TODO: comment the missing D term in the modal form
 f_modal = @(t) sys_modal.C * diag(exp(diag(lambda * t))) * sys_modal.B;
 
 y_modal = arrayfun(f_modal, t_intervals);
@@ -105,16 +101,19 @@ x0 = [0; -1 / pendulums.L(1)];
 odefun = @(t, x) sys_damped.A * x;
 
 [t_numerical, x_numerical] = ode45(odefun, [0, t_f], x0);
-% TODO: look for MATLAB docs in impulse response to see how to handle D in the impulse response
 y_numerical = sys_damped.C * x_numerical';
 
-figure;
+impulse_figure = figure;
 plot(t_intervals, y_impulse, 'DisplayName', 'impulse');
 hold on;
 plot(t_intervals, y_analitycal, 'DisplayName', 'analitycal');
 plot(t_intervals, y_modal, 'DisplayName', 'modal');
 plot(t_numerical, y_numerical, 'DisplayName', 'numerical');
 grid on;
+title('Impulse response of the damped system, n = 1');
+xlabel('Time [s]');
+ylabel('$F_x$ [N]', 'Interpreter', 'latex');
+hold off;
 legend;
 
 %% Task 4: Find the required order n of the damped multi-
@@ -149,14 +148,14 @@ for i = 1:length(n_options) - 1
     max_errors(i) = max(abs(y(i, :) - reference_y)) / max_y;
 end
 
-figure;
-plot(n_options(1:end - 1), 100.*avg_errors, 'DisplayName', 'Average error');
+error_figure = figure;
+plot(n_options(1:end - 1), 100 .* avg_errors, 'DisplayName', 'Average error');
 hold on;
-plot(n_options(1:end - 1), 100.*max_errors, 'DisplayName', 'Max error');
+plot(n_options(1:end - 1), 100 .* max_errors, 'DisplayName', 'Max error');
 grid on;
 xlabel('Order n of the model');
 ylabel('Error [%]');
-title('Relative error with respect to the maximum value of the reference model');
+% title('Relative error with respect to the maximum value of the reference model');
 legend('Location', 'best');
 hold off;
 
