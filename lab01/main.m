@@ -278,3 +278,47 @@ xlabel('Frequency [rad/s]');
 ylabel('Phase [degrees]');
 title('Frequency response of the damped system, n = 5');
 legend('Location', 'best');
+
+%% Task 7: Step Response using SIMULINK
+
+n = 5; % Order of the model
+pendulums = sloshing_pendulums(params, n);
+sys_damped = sloshing_damped(pendulums, params, damping);
+
+eig(sys_damped.A)
+
+u = @(t) 1;
+f_analitycal = @(t) C_inv_A * (expm(sys_damped.A * t) - eye(size(sys_damped.A))) * sys_damped.B + sys_damped.D * u(t);
+
+
+
+
+sim_step = sim('Step_Response.slx');
+
+u = sim_step.u; % Forcing term
+F = sim_step.F; % Force history
+
+y_step_analitycal = arrayfun(f_analitycal, F.Time);
+
+plot(F.Time, y_step_analitycal, 'DisplayName', 'Analitycal');
+hold on;
+plot(F, ".")
+% [y_step, t_step] = step(sys_damped, 100);
+% plot(t_step, y_step)
+hold off;
+ylabel("Force [N]")
+xlabel("Time [s]")
+legend("Analytical Solution", "Numerical Solution ode-23")
+title("Simulink Step Response (n = 5)")
+
+figure
+plot(F.Time, abs(y_step_analitycal - F.Data)/abs(y_step_analitycal))
+xlabel("Time [s]")
+ylabel("Normalised error refered to analitical solution")
+title("Error of numerical integration")
+
+figure
+plot(F.Time(2:end) - F.Time(1:end-1))
+xlabel("Timestep")
+ylabel("Timestep duration [s]")
+title("Length of time-intevals ode-23")
