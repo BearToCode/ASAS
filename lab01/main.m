@@ -198,6 +198,14 @@ sys_damped = sloshing_damped(pendulums, params, damping);
 % 1: built-in function "step"
 [y_step, t_step] = step(sys_damped, t_f);
 
+% figure
+% plot(t_step, y_step, 'DisplayName', 'Step');
+% legend('Location', 'best');
+% grid on;
+% xlabel('Time [s]');
+% ylabel('Step response [N]');
+
+
 % 2: analytical solution
 
 u = @(t) 1;
@@ -208,13 +216,35 @@ C_inv_A = sys_damped.C / sys_damped.A;
 f_analitycal = @(t) C_inv_A * (expm(sys_damped.A * t) - eye(size(sys_damped.A))) * sys_damped.B + sys_damped.D * u(t);
 y_step_analitycal = arrayfun(f_analitycal, t_step_analitycal);
 
+% figure
+% plot(t_step_analitycal, y_step_analitycal, 'DisplayName', 'Step');
+% legend('Location', 'best');
+% grid on;
+% xlabel('Time [s]');
+% ylabel('Step response [N]');
+
+
+
 % 3: numerical integration technique
 x0 = zeros(2 * n, 1); % Initial condition for the state vector
 
 odefun = @(t, x) sys_damped.A * x + sys_damped.B;
-[t_numerical, x_numerical] = ode45(odefun, [0, t_f], x0);
+[t_numerical_45, x_numerical_45] = ode45(odefun, [0, t_f], x0);
+y_numerical_45 = sys_damped.C * x_numerical_45' + sys_damped.D * u(t_numerical_45);
 
-y_numerical = sys_damped.C * x_numerical' + sys_damped.D * u(t_numerical);
+[t_numerical_23, x_numerical_23] = ode23(odefun, [0, t_f], x0);
+y_numerical_23 = sys_damped.C * x_numerical_23' + sys_damped.D * u(t_numerical_23);
+
+figure
+hold on;
+plot(t_numerical_45, y_numerical_45, 'DisplayName', 'Step - ode45');
+plot(t_numerical_23, y_numerical_23, 'DisplayName', 'Step - ode23');
+plot(t_step_analitycal, y_step_analitycal, 'DisplayName', 'Step - Analytical');
+legend('Location', 'best');
+grid on;
+xlabel('Time [s]');
+ylabel('Step response [N]');
+
 
 % Extra: add response with "frozen liquid"
 t_frozen = 0:0.01:t_f;
