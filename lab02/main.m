@@ -123,3 +123,71 @@ title('Response to 25 N pulse force on the cart');
 
 %% Task 1.3 – Nonlinear response to a force applied on the cart
 % A. Repeat Task 1.2 using a Simulink model based on integral block approach
+% B. Repeat Task 1.2 using a Simulink model based on M-function.
+
+% TODO: add plots
+
+%% Task 1.4 –Analysis of the linearized system
+% A. Derive the mathematical expression and numerical values of the
+% state-space matrices (A,B,C,D) of the linearized model about the
+% equilibrium point when the outputs are the cart position and the pendulum angle.
+% B. Derive the mathematical and numerical expression of the transfer functions (TFs).
+% C. Plot the pole-zero map for both TFs.
+% D. Plot the asymptotic and real Bode diagram (magnitude and phase) for both TFs.
+
+linear_sys = ipend_linear(params);
+
+% TODO: B, C, D
+
+%% Task 1.5 – Comparison of the nonlinear and linear response
+% Starting from the initial position corresponding to the equilibrium point x0
+% develop a MATLAB code to simulate the linear (open-loop) response in terms of cart
+% position and pendulum angle in the time interval [0 – 20] s for the following three input cases:
+% a) 1-second pulse force (from 1 to 2 s) on the cart of amplitude 1 N
+% b) 1-second pulse force (from 1 to 2 s) on the cart of amplitude 5N
+% c) 1-second pulse force (from 1 to 2 s) on the cart of amplitude 25 N
+% For each input case, plot on the same figure the linear response and the nonlinear response
+% computed in Task 1.2 ( and ) and provide comments on the differences.
+
+odefun1 = @(t, x) linear_sys.A * x + linear_sys.B * u1(t);
+odefun2 = @(t, x) linear_sys.A * x + linear_sys.B * u2(t);
+odefun3 = @(t, x) linear_sys.A * x + linear_sys.B * u3(t);
+
+[t1_lin, x1_lin] = ode45(odefun1, tspan, x0);
+[t2_lin, x2_lin] = ode45(odefun2, tspan, x0);
+[t3_lin, x3_lin] = ode45(odefun3, tspan, x0);
+
+y1_lin = linear_sys.C * x1_lin' + linear_sys.D * u1(t1_lin)';
+y2_lin = linear_sys.C * x2_lin' + linear_sys.D * u2(t2_lin)';
+y3_lin = linear_sys.C * x3_lin' + linear_sys.D * u3(t3_lin)';
+
+pos1_lin = y1_lin(1, :)'; % cart positions
+pos2_lin = y2_lin(1, :)';
+pos3_lin = y3_lin(1, :)';
+theta1_lin = y1_lin(2, :)' .* 180 / pi + 180; % pendulum angles
+theta2_lin = y2_lin(2, :)' .* 180 / pi + 180;
+theta3_lin = y3_lin(2, :)' .* 180 / pi + 180;
+
+task5_u1_pos_lin = figure;
+plot(t1, pos1, 'Color', "#77AC30", 'DisplayName', 'Nonlinear');
+hold on;
+plot(t1_lin, pos1_lin, 'Color', "#D95319", 'DisplayName', 'Linear');
+grid on;
+xlabel('Time [s]');
+ylabel('Cart position [m]');
+legend('$x(t)$', '$\bar{x}(t)$', 'Interpreter', 'latex');
+
+save_figure(task5_u1_pos_lin, 'task5_u1_pos_lin.png')
+title('Response to 1 N pulse force on the cart');
+
+task5_u1_theta_lin = figure;
+plot(t1, theta1, 'Color', "#4DBEEE", 'DisplayName', 'Nonlinear');
+hold on;
+plot(t1_lin, theta1_lin, 'Color', "#A2142F", 'DisplayName', 'Linear');
+grid on;
+xlabel('Time [s]');
+ylabel('Pendulum angle [°]');
+legend('$\theta(t)$', '$\bar{\theta}(t)$', 'Interpreter', 'latex');
+
+save_figure(task5_u1_theta_lin, 'task5_u1_theta_lin.png')
+title('Response to 1 N pulse force on the cart');
