@@ -205,7 +205,6 @@ sys_damped = sloshing_damped(pendulums, params, damping);
 % xlabel('Time [s]');
 % ylabel('Step response [N]');
 
-
 % 2: analytical solution
 
 u = @(t) 1;
@@ -222,8 +221,6 @@ y_step_analitycal = arrayfun(f_analitycal, t_step_analitycal);
 % grid on;
 % xlabel('Time [s]');
 % ylabel('Step response [N]');
-
-
 
 % 3: numerical integration technique
 x0 = zeros(2 * n, 1); % Initial condition for the state vector
@@ -244,7 +241,6 @@ legend('Location', 'best');
 grid on;
 xlabel('Time [s]');
 ylabel('Step response [N]');
-
 
 % Extra: add response with "frozen liquid"
 t_frozen = 0:0.01:t_f;
@@ -320,9 +316,6 @@ eig(sys_damped.A)
 u = @(t) 1;
 f_analitycal = @(t) C_inv_A * (expm(sys_damped.A * t) - eye(size(sys_damped.A))) * sys_damped.B + sys_damped.D * u(t);
 
-
-
-
 sim_step = sim('Step_Response.slx');
 
 u = sim_step.u; % Forcing term
@@ -342,13 +335,13 @@ legend("Analytical Solution", "Numerical Solution ode-23")
 title("Simulink Step Response (n = 5)")
 
 figure
-plot(F.Time, abs(y_step_analitycal - F.Data)/abs(y_step_analitycal))
+plot(F.Time, abs(y_step_analitycal - F.Data) / abs(y_step_analitycal))
 xlabel("Time [s]")
-ylabel("Normalised error refered to analitical solution")
+ylabel("Normalized error relative to the analytical solution")
 title("Error of numerical integration")
 
 figure
-plot(F.Time(2:end) - F.Time(1:end-1))
+plot(F.Time(2:end) - F.Time(1:end - 1))
 xlabel("Timestep")
 ylabel("Timestep duration [s]")
-title("Length of time-intevals ode-23")
+title("Length of time-intervals ode-23")
