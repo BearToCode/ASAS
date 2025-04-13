@@ -12,10 +12,12 @@
     "dsolve",
     "dtheta",
     "expm",
+    "exportgraphics",
     "fprintf",
     "genpath",
     "ilaplace",
     "intevals",
+    "ipend",
     "linearization",
     "linearizing",
     "logspace",
@@ -23,12 +25,15 @@
     "Pellizzer",
     "semilogx",
     "Simulink",
+    "strcat",
     "syms",
     "Timestep",
+    "tspan",
     "xdotdot",
     "xlabel",
     "ylabel",
-    "yline"
+    "yline",
+    "yyaxis"
   ],
   "[matlab]": {
     "editor.defaultFormatter": "AffenWiesel.matlab-formatter"
