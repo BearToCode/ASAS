@@ -92,17 +92,17 @@ function params = tf_params(G)
     % - zeros_cc   [1xN]        complex conjugate zeros
     % - poles_real [1xN]        real poles
     % - poles_cc   [1xN]        complex conjugate poles
-    % - gain       [1x1]          gain
-    % - tc         [1x1]          transfer constant
-    % - type       [1x1]          type of the system
-    % - z_i        [1xN]          negated real cc zeros
-    % - p_i        [1xN]          negated real cc poles
-    % - n_i        [1xN]          damping ratios of the cc zeros
-    % - a_n        [1xN]          natural frequencies of the cc zeros
-    % - w_n        [1xN]          natural frequencies of the cc poles
-    % - e_i        [1xN]          damping ratios of the cc poles
-    % - t_i        [1xN]          time constants of the cc zeros
-    % - T_i        [1xN]          time constants of the cc poles
+    % - gain       [1x1]        gain
+    % - tc         [1x1]        transfer constant
+    % - type       [1x1]        type of the system
+    % - z_i        [1xN]        negated real zeros
+    % - p_i        [1xN]        negated real poles
+    % - n_i        [1xN]        damping ratios of the cc zeros
+    % - a_n        [1xN]        natural frequencies of the cc zeros
+    % - w_n        [1xN]        natural frequencies of the cc poles
+    % - e_i        [1xN]        damping ratios of the cc poles
+    % - t_i        [1xN]        time constants of the cc zeros
+    % - T_i        [1xN]        time constants of the cc poles
 
     [tf_num, tf_den] = tfdata(G, 'v');
 
