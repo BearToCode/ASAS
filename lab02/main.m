@@ -136,8 +136,17 @@ title('Response to 25 N pulse force on the cart');
 % D. Plot the asymptotic and real Bode diagram (magnitude and phase) for both TFs.
 
 linear_sys = ipend_linear(params);
+[G_x, G_theta] = ipend_tf(params);
 
-% TODO: B, C, D
+G_x_figure = figure;
+pzmap(G_x);
+save_figure(G_x_figure, 'task4_pzmap_x.png')
+title('Pole-Zero Map of the Linearized System - $x$', 'Interpreter', 'latex');
+
+G_theta_figure = figure;
+pzmap(G_theta);
+save_figure(G_theta_figure, 'task4_pzmap_theta.png')
+title('Pole-Zero Map of the Linearized System - $\theta$', 'Interpreter', 'latex');
 
 %% Task 1.5 – Comparison of the nonlinear and linear response
 % Starting from the initial position corresponding to the equilibrium point x0
@@ -153,9 +162,9 @@ odefun1 = @(t, x) linear_sys.A * x + linear_sys.B * u1(t);
 odefun2 = @(t, x) linear_sys.A * x + linear_sys.B * u2(t);
 odefun3 = @(t, x) linear_sys.A * x + linear_sys.B * u3(t);
 
-[t1_lin, x1_lin] = ode45(odefun1, tspan, x0);
-[t2_lin, x2_lin] = ode45(odefun2, tspan, x0);
-[t3_lin, x3_lin] = ode45(odefun3, tspan, x0);
+[t1_lin, x1_lin] = ode45(odefun1, tspan, zeros(4, 1));
+[t2_lin, x2_lin] = ode45(odefun2, tspan, zeros(4, 1));
+[t3_lin, x3_lin] = ode45(odefun3, tspan, zeros(4, 1));
 
 y1_lin = linear_sys.C * x1_lin' + linear_sys.D * u1(t1_lin)';
 y2_lin = linear_sys.C * x2_lin' + linear_sys.D * u2(t2_lin)';
@@ -191,3 +200,51 @@ legend('$\theta(t)$', '$\bar{\theta}(t)$', 'Interpreter', 'latex');
 
 save_figure(task5_u1_theta_lin, 'task5_u1_theta_lin.png')
 title('Response to 1 N pulse force on the cart');
+
+task5_u2_pos_lin = figure;
+plot(t2, pos2, 'Color', "#77AC30", 'DisplayName', 'Nonlinear');
+hold on;
+plot(t2_lin, pos2_lin, 'Color', "#D95319", 'DisplayName', 'Linear');
+grid on;
+xlabel('Time [s]');
+ylabel('Cart position [m]');
+legend('$x(t)$', '$\bar{x}(t)$', 'Interpreter', 'latex');
+
+save_figure(task5_u2_pos_lin, 'task5_u2_pos_lin.png')
+title('Response to 5 N pulse force on the cart');
+
+task5_u2_theta_lin = figure;
+plot(t2, theta2, 'Color', "#4DBEEE", 'DisplayName', 'Nonlinear');
+hold on;
+plot(t2_lin, theta2_lin, 'Color', "#A2142F", 'DisplayName', 'Linear');
+grid on;
+xlabel('Time [s]');
+ylabel('Pendulum angle [°]');
+legend('$\theta(t)$', '$\bar{\theta}(t)$', 'Interpreter', 'latex');
+
+save_figure(task5_u2_theta_lin, 'task5_u2_theta_lin.png')
+title('Response to 5 N pulse force on the cart');
+
+task5_u3_pos_lin = figure;
+plot(t3, pos3, 'Color', "#77AC30", 'DisplayName', 'Nonlinear');
+hold on;
+plot(t3_lin, pos3_lin, 'Color', "#D95319", 'DisplayName', 'Linear');
+grid on;
+xlabel('Time [s]');
+ylabel('Cart position [m]');
+legend('$x(t)$', '$\bar{x}(t)$', 'Interpreter', 'latex');
+
+save_figure(task5_u3_pos_lin, 'task5_u3_pos_lin.png')
+title('Response to 25 N pulse force on the cart');
+
+task5_u3_theta_lin = figure;
+plot(t3, theta3, 'Color', "#4DBEEE", 'DisplayName', 'Nonlinear');
+hold on;
+plot(t3_lin, theta3_lin, 'Color', "#A2142F", 'DisplayName', 'Linear');
+grid on;
+xlabel('Time [s]');
+ylabel('Pendulum angle [°]');
+legend('$\theta(t)$', '$\bar{\theta}(t)$', 'Interpreter', 'latex');
+
+save_figure(task5_u3_theta_lin, 'task5_u3_theta_lin.png')
+title('Response to 25 N pulse force on the cart');
