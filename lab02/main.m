@@ -148,6 +148,66 @@ pzmap(G_theta);
 save_figure(G_theta_figure, 'task4_pzmap_theta.png')
 title('Pole-Zero Map of the Linearized System - $\theta$', 'Interpreter', 'latex');
 
+db = @(x) 20 * log10(x);
+
+w = logspace(-2, 2, 1000); % frequency range for Bode plot
+[mag_asymp_x, phase_asymp_x] = asymp_bode(G_x, w);
+[mag_asymp_theta, phase_asymp_theta] = asymp_bode(G_theta, w);
+
+[mag_real_x, phase_real_x] = bode(G_x, w);
+[mag_real_theta, phase_real_theta] = bode(G_theta, w);
+
+mag_real_x = squeeze(mag_real_x);
+mag_real_theta = squeeze(mag_real_theta);
+phase_real_x = squeeze(phase_real_x);
+phase_real_theta = squeeze(phase_real_theta);
+
+task4_bode_x = figure;
+subplot(2, 1, 1);
+semilogx(w, db(mag_asymp_x), 'DisplayName', 'Asymptotic');
+hold on;
+semilogx(w, db(mag_real_x), 'DisplayName', 'Real');
+grid on;
+xlabel('Frequency [rad/s]');
+ylabel('Magnitude [dB]');
+legend('$|\bar{G_x}(j\omega)|$', '$|G_x(j\omega)|$', 'Interpreter', 'latex', 'Location', 'Best');
+title('Bode Diagram of the Linearized System - $G_x$', 'Interpreter', 'latex');
+
+subplot(2, 1, 2);
+semilogx(w, phase_asymp_x, 'DisplayName', 'Asymptotic');
+hold on;
+semilogx(w, phase_real_x, 'DisplayName', 'Real');
+grid on;
+xlabel('Frequency [rad/s]');
+ylabel('Phase [°]');
+legend('$\angle \bar{G_x}(j\omega)$', '$\angle G_x(j\omega)$', 'Interpreter', 'latex', 'Location', 'Best');
+title('Bode Diagram of the Linearized System - $G_x$', 'Interpreter', 'latex');
+
+save_figure(task4_bode_x, 'task4_bode_x.png')
+
+task4_bode_theta = figure;
+subplot(2, 1, 1);
+semilogx(w, db(mag_asymp_theta), 'DisplayName', 'Asymptotic');
+hold on;
+semilogx(w, db(mag_real_theta), 'DisplayName', 'Real');
+grid on;
+xlabel('Frequency [rad/s]');
+ylabel('Magnitude [dB]');
+legend('$|\bar{G_\theta}(j\omega)|$', '$|G_\theta(j\omega)|$', 'Interpreter', 'latex', 'Location', 'Best');
+title('Bode Diagram of the Linearized System - $G_\theta$', 'Interpreter', 'latex');
+
+subplot(2, 1, 2);
+semilogx(w, phase_asymp_theta, 'DisplayName', 'Asymptotic');
+hold on;
+semilogx(w, phase_real_theta, 'DisplayName', 'Real');
+grid on;
+xlabel('Frequency [rad/s]');
+ylabel('Phase [°]');
+legend('$\angle \bar{G_\theta}(j\omega)$', '$\angle G_\theta(j\omega)$', 'Interpreter', 'latex', 'Location', 'Best');
+title('Bode Diagram of the Linearized System - $G_\theta$', 'Interpreter', 'latex');
+
+save_figure(task4_bode_theta, 'task4_bode_theta.png')
+
 %% Task 1.5 – Comparison of the nonlinear and linear response
 % Starting from the initial position corresponding to the equilibrium point x0
 % develop a MATLAB code to simulate the linear (open-loop) response in terms of cart
