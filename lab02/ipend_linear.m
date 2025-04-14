@@ -29,7 +29,7 @@ function sys = ipend_linear(params)
          0 0 0 1;
          0 (-c / (M * l)) (- (1 + m / M) * g / l) (- (M + m) / m * b / (M * l ^ 2))
          ];
-    B = [0; 1 / M; 0; 0];
+    B = [0; 1 / M; 0; 1 / (M * l)];
     C = [1 0 0 0;
          0 0 1 0];
     D = [0; 0];
