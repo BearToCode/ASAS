@@ -39,6 +39,7 @@
     "xdotdot",
     "xlabel",
     "ylabel",
+    "ylim",
     "yline",
     "yyaxis",
     "zpkdata"

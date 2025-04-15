@@ -61,11 +61,16 @@ theta1 = y1(2, :)' .* 180 / pi; % pendulum angles
 theta2 = y2(2, :)' .* 180 / pi;
 theta3 = y3(2, :)' .* 180 / pi;
 
+max_pos = max([max(pos1), max(pos2), max(pos3)]);
+min_theta = min([min(theta1), min(theta2), min(theta3)]);
+max_theta = max([max(theta1), max(theta2), max(theta3)]);
+
 task1_u1_pos = figure;
 plot(t1, pos1, 'Color', "#77AC30");
 grid on;
 xlabel('Time [s]');
 ylabel('Cart position [m]');
+ylim([0 max_pos]);
 legend('$x(t)$', 'Interpreter', 'latex');
 
 save_figure(task1_u1_pos, 'task1_u1_pos.png')
@@ -76,6 +81,7 @@ plot(t1, theta1, 'Color', "#4DBEEE");
 grid on;
 xlabel('Time [s]');
 ylabel('Pendulum angle [°]');
+ylim([min_theta max_theta]);
 legend('$\theta(t)$', 'Interpreter', 'latex');
 
 save_figure(task1_u1_theta, 'task1_u1_theta.png')
@@ -86,6 +92,7 @@ plot(t2, pos2, 'Color', "#77AC30");
 grid on;
 xlabel('Time [s]');
 ylabel('Cart position [m]');
+ylim([0 max_pos]);
 legend('$x(t)$', 'Interpreter', 'latex');
 
 save_figure(task_u2_pos, 'task1_u2_pos.png')
@@ -96,6 +103,7 @@ plot(t2, theta2, 'Color', "#4DBEEE");
 grid on;
 xlabel('Time [s]');
 ylabel('Pendulum angle [°]');
+ylim([min_theta max_theta]);
 legend('$\theta(t)$', 'Interpreter', 'latex');
 
 save_figure(task_u2_theta, 'task1_u2_theta.png')
@@ -106,6 +114,7 @@ plot(t3, pos3, 'Color', "#77AC30");
 grid on;
 xlabel('Time [s]');
 ylabel('Cart position [m]');
+ylim([0 max_pos]);
 legend('$x(t)$', 'Interpreter', 'latex');
 
 save_figure(task_u3_pos, 'task1_u3_pos.png')
@@ -116,6 +125,7 @@ plot(t3, theta3, 'Color', "#4DBEEE");
 grid on;
 xlabel('Time [s]');
 ylabel('Pendulum angle [°]');
+ylim([min_theta max_theta]);
 legend('$\theta(t)$', 'Interpreter', 'latex');
 
 save_figure(task_u3_theta, 'task1_u3_theta.png')
@@ -238,6 +248,10 @@ theta1_lin = y1_lin(2, :)' .* 180 / pi + 180; % pendulum angles
 theta2_lin = y2_lin(2, :)' .* 180 / pi + 180;
 theta3_lin = y3_lin(2, :)' .* 180 / pi + 180;
 
+max_pos_lin = max([max(pos1_lin), max(pos2_lin), max(pos3_lin)]);
+min_theta_lin = min([min(theta1_lin), min(theta2_lin), min(theta3_lin)]);
+max_theta_lin = max([max(theta1_lin), max(theta2_lin), max(theta3_lin)]);
+
 task5_u1_pos_lin = figure;
 plot(t1, pos1, 'Color', "#77AC30", 'DisplayName', 'Nonlinear');
 hold on;
@@ -245,6 +259,7 @@ plot(t1_lin, pos1_lin, 'Color', "#D95319", 'DisplayName', 'Linear');
 grid on;
 xlabel('Time [s]');
 ylabel('Cart position [m]');
+ylim([0 max_pos_lin]);
 legend('$x(t)$', '$\bar{x}(t)$', 'Interpreter', 'latex');
 
 save_figure(task5_u1_pos_lin, 'task5_u1_pos_lin.png')
@@ -257,6 +272,7 @@ plot(t1_lin, theta1_lin, 'Color', "#A2142F", 'DisplayName', 'Linear');
 grid on;
 xlabel('Time [s]');
 ylabel('Pendulum angle [°]');
+ylim([min_theta_lin max_theta_lin]);
 legend('$\theta(t)$', '$\bar{\theta}(t)$', 'Interpreter', 'latex');
 
 save_figure(task5_u1_theta_lin, 'task5_u1_theta_lin.png')
@@ -269,6 +285,7 @@ plot(t2_lin, pos2_lin, 'Color', "#D95319", 'DisplayName', 'Linear');
 grid on;
 xlabel('Time [s]');
 ylabel('Cart position [m]');
+ylim([0 max_pos_lin]);
 legend('$x(t)$', '$\bar{x}(t)$', 'Interpreter', 'latex');
 
 save_figure(task5_u2_pos_lin, 'task5_u2_pos_lin.png')
@@ -281,6 +298,7 @@ plot(t2_lin, theta2_lin, 'Color', "#A2142F", 'DisplayName', 'Linear');
 grid on;
 xlabel('Time [s]');
 ylabel('Pendulum angle [°]');
+ylim([min_theta_lin max_theta_lin]);
 legend('$\theta(t)$', '$\bar{\theta}(t)$', 'Interpreter', 'latex');
 
 save_figure(task5_u2_theta_lin, 'task5_u2_theta_lin.png')
@@ -293,6 +311,7 @@ plot(t3_lin, pos3_lin, 'Color', "#D95319", 'DisplayName', 'Linear');
 grid on;
 xlabel('Time [s]');
 ylabel('Cart position [m]');
+ylim([0 max_pos_lin]);
 legend('$x(t)$', '$\bar{x}(t)$', 'Interpreter', 'latex');
 
 save_figure(task5_u3_pos_lin, 'task5_u3_pos_lin.png')
@@ -305,6 +324,7 @@ plot(t3_lin, theta3_lin, 'Color', "#A2142F", 'DisplayName', 'Linear');
 grid on;
 xlabel('Time [s]');
 ylabel('Pendulum angle [°]');
+ylim([min_theta_lin max_theta_lin]);
 legend('$\theta(t)$', '$\bar{\theta}(t)$', 'Interpreter', 'latex');
 
 save_figure(task5_u3_theta_lin, 'task5_u3_theta_lin.png')
