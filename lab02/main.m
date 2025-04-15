@@ -150,13 +150,14 @@ title('Pole-Zero Map of the Linearized System - $\theta$', 'Interpreter', 'latex
 
 db = @(x) 20 * log10(x);
 
-w = logspace(-2, 2, 1000); % frequency range for Bode plot
+w = logspace(-3, 2, 1000); % frequency range for Bode plot
 [mag_asymp_x, phase_asymp_x] = asymp_bode(G_x, w);
 [mag_asymp_theta, phase_asymp_theta] = asymp_bode(G_theta, w);
 
 [mag_real_x, phase_real_x] = bode(G_x, w);
 [mag_real_theta, phase_real_theta] = bode(G_theta, w);
 
+% Convert the three dimensional arrays to one dimension
 mag_real_x = squeeze(mag_real_x);
 mag_real_theta = squeeze(mag_real_theta);
 phase_real_x = squeeze(phase_real_x);
@@ -216,7 +217,7 @@ save_figure(task4_bode_theta, 'task4_bode_theta.png')
 % b) 1-second pulse force (from 1 to 2 s) on the cart of amplitude 5N
 % c) 1-second pulse force (from 1 to 2 s) on the cart of amplitude 25 N
 % For each input case, plot on the same figure the linear response and the nonlinear response
-% computed in Task 1.2 ( and ) and provide comments on the differences.
+% computed in Task 1.2 (x(t) and theta(t)) and provide comments on the differences.
 
 odefun1 = @(t, x) linear_sys.A * x + linear_sys.B * u1(t);
 odefun2 = @(t, x) linear_sys.A * x + linear_sys.B * u2(t);
@@ -308,3 +309,46 @@ legend('$\theta(t)$', '$\bar{\theta}(t)$', 'Interpreter', 'latex');
 
 save_figure(task5_u3_theta_lin, 'task5_u3_theta_lin.png')
 title('Response to 25 N pulse force on the cart');
+
+%% Task 2.1 – Mathematical model
+% A. Derive the nonlinear EOM of the system
+% (show and comment every step of the derivation).
+% B. Derive the nonlinear state-space formulation with the force u
+% as control input, the force d as disturbance input, and the cart
+% position and pendulum angle as outputs (show and comment every
+% step of the derivation).
+% C. Derive the linearized EOM of the system (show and comment
+% every step of the derivation).
+% D. Derive the linearized state-space formulation (show and comment
+% every step of the derivation).
+
+clear; % clear workspace
+
+params.M = 3; % [kg]
+params.m = 0.1; % [kg]
+params.l = 0.75; % [m]
+params.g = 9.8; % [m/s^2]
+
+[A, B_u, B_d, C, D_u, D_d] = ipend_control_linear(params);
+
+%% Task 2.2 – Open-loop transfer function
+% A. Derive the mathematical and numerical expression of the open-loop
+% transfer function G(s) from the control input to the pendulum angle
+% B. Derive the mathematical expression and compute the numerical values of
+% the zeros and poles of G(s) and plot the pole/zero map.
+
+[~, G] = ipend_control_tf(params);
+
+G_figure = figure;
+pzmap(G);
+save_figure(G_figure, 'task2_pzmap.png')
+title('Pole-Zero Map of the Open-Loop Transfer Function - $G(s)$', 'Interpreter', 'latex');
+
+%% Task 2.3 – Proportional (P) control for stabilization
+% Let’s consider a proportional (P) control:
+% A. By assuming a reference equal to zero (r(s) = 0), draw the block diagram of the closed-loop system and
+% derive the mathematical expression of the closed-loop transfer function from the disturbance input to
+% the pendulum angle output
+% B. Demonstrate analytically that a P control cannot stabilize the system.
+% C. Confirm the previous result using the root locus technique and discuss the loci behaviour.
+% D. Determine the minimum value of the control gain such that the closed-loop system is marginally stable.

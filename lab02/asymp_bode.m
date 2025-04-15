@@ -38,8 +38,8 @@ function [mag, phase] = asymp_bode(G, w)
 
     function slope = slope_at(omega, params, w_z, w_p)
         slope = -20 * params.type;
-        slope = slope + length(find(w_z < omega)) * 20;
-        slope = slope - length(find(w_p < omega)) * 20;
+        slope = slope + sum(w_z < omega) * 20;
+        slope = slope - sum(w_p < omega) * 20;
     end
 
     function mag_db = mag_at(omega, params, w_singularities, w_z, w_p, starting_line)
@@ -70,10 +70,10 @@ function [mag, phase] = asymp_bode(G, w)
         phase = -180 * (params.gain < 0);
         phase = phase - 90 * params.type;
 
-        phase = phase + length(find(w_z < omega & real(z) < 0)) * 90;
-        phase = phase + length(find(w_p < omega & real(p) > 0)) * 90;
-        phase = phase - length(find(w_z < omega & real(z) > 0)) * 90;
-        phase = phase - length(find(w_p < omega & real(p) < 0)) * 90;
+        phase = phase + sum(w_z < omega & real(z) < 0) * 90;
+        phase = phase + sum(w_p < omega & real(p) > 0) * 90;
+        phase = phase - sum(w_z < omega & real(z) > 0) * 90;
+        phase = phase - sum(w_p < omega & real(p) < 0) * 90;
     end
 
 end

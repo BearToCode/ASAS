@@ -39,6 +39,12 @@ dtheta0 = 0; % initial pendulum angular velocity
 
 syms delta_x delta_theta delta_dx delta_dtheta delta_d2x delta_d2theta real;
 
+function static = eval_at_equilibrium(sym, x_var, theta_var, t_var, x0, theta0, dx0, dtheta0)
+    static = subs(sym, {x_var, theta_var, diff(x_var, t_var), diff(theta_var, t_var)}, {x0, theta0, dx0, dtheta0});
+    static = subs(static, {diff(x_var, t_var, t_var), diff(theta_var, t_var, t_var)}, {0, 0});
+    static = simplify(static);
+end
+
 f_x_eq = eval_at_equilibrium(f_x, x, theta, t, x0, theta0, dx0, dtheta0);
 f_x_x = eval_at_equilibrium(diff(f_x, x), x, theta, t, x0, theta0, dx0, dtheta0);
 f_x_dx = eval_at_equilibrium(diff(f_x, diff(x, t)), x, theta, t, x0, theta0, dx0, dtheta0);
@@ -60,12 +66,6 @@ f_x_lin = f_x_eq + f_x_x * delta_x + f_x_dx * delta_dx + f_x_d2x * delta_d2x + .
 
 f_theta_lin = f_theta_eq + f_theta_x * delta_x + f_theta_dx * delta_dx + f_theta_d2x * delta_d2x + ...
     f_theta_theta * delta_theta + f_theta_dtheta * delta_dtheta + f_theta_d2theta * delta_d2theta;
-
-function static = eval_at_equilibrium(sym, x_var, theta_var, t_var, x0, theta0, dx0, dtheta0)
-    static = subs(sym, {x_var, theta_var, diff(x_var, t_var), diff(theta_var, t_var)}, {x0, theta0, dx0, dtheta0});
-    static = subs(static, {diff(x_var, t_var, t_var), diff(theta_var, t_var, t_var)}, {0, 0});
-    static = simplify(static);
-end
 
 lin_sys = [f_x_lin; f_theta_lin];
 
