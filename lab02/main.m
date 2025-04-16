@@ -370,5 +370,85 @@ title('Pole-Zero Map of the Open-Loop Transfer Function - $G(s)$', 'Interpreter'
 % derive the mathematical expression of the closed-loop transfer function from the disturbance input to
 % the pendulum angle output
 % B. Demonstrate analytically that a P control cannot stabilize the system.
-% C. Confirm the previous result using the root locus technique and discuss the loci behaviour.
+% C. Confirm the previous result using the root locus technique and discuss the loci behavior.
 % D. Determine the minimum value of the control gain such that the closed-loop system is marginally stable.
+
+rlocus(G);
+
+% TODO: D
+
+%% Task 2.4 – Proportional-Derivative (PD) control for stabilization
+% Let’s consider a proportional-derivative (PD) control:
+% A. By assuming a reference equal to zero (r(s) = 0), draw the block
+% diagram of the closed-loop system and derive the mathematical
+% expression of the closed-loop transfer function from the
+% disturbance to the pendulum angle
+% B. Determine the value of the control gains kp and kd such that
+% the closed-loop pendulum response to a step disturbance
+% would have peak-time less than 1 s and overshoot less than
+% 20% (make a connection of these specifications to the
+% locations of desired closed–loop poles)
+% C. (MATLAB® code) Simulate and report the nonlinear
+% closed-loop time response (cart position and pendulum
+% angle) of the PD-controlled system with the gains
+% obtained from point B., when the cart is subjected to a
+% pulse disturbance force of 1 N and duration 0.1 s. Report
+% also the time history of the control force and comment
+% the behavior with respect to the system response.
+% D. Repeat point C. using a Simulink® model.
+
+Kp = 86.63;
+Kd = 6.75;
+
+s = tf('s');
+
+R = Kp + Kd * s; % PD controller
+L = R * G; % open-loop transfer function
+F = L / (1 + L); % closed-loop transfer function
+
+x0 = [0; 0; 0; 0];
+
+r = @(t) x0; % reference input
+d = @(t) 1 * (t <= 0.1);
+
+tspan = [0 20];
+
+[f, g] = ipend_control_nonlinear(params);
+
+pd = @(x) Kp * x(3) + Kd * x(4); % PD control law
+
+odefun = @(t, x) f(x, pd(r(t) - x), d(t));
+
+[t, x] = ode45(odefun, tspan, x0);
+
+pos = x(:, 1);
+theta = x(:, 3);
+theta_dot = x(:, 4);
+
+control = zeros(length(t), 1);
+
+for i = 1:length(t)
+    error = r(t(i)) - x(i, :)';
+    control(i) = pd(error);
+end
+
+theta = theta .* 180 / pi; % convert to degrees
+
+max_theta = max(abs(theta));
+max_control = max(abs(control));
+
+control_theta_figure = figure;
+plot(t, control, 'DisplayName', 'Control Force');
+hold on;
+grid on;
+xlabel('Time [s]');
+ylabel('Control Force [N]');
+ylim([-max_control max_control]);
+yyaxis right;
+plot(t, theta, 'DisplayName', 'Pendulum Angle');
+ylabel('Pendulum Angle [°]');
+ylim([-max_theta max_theta]);
+legend('$F_c(t)$', '$\theta(t)$', 'Interpreter', 'latex', 'Location', 'Best');
+
+save_figure(control_theta_figure, 'task2_control_theta.png')
+title('Control Force and Pendulum Angle - PD Control', 'Interpreter', 'latex');
