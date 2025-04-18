@@ -316,19 +316,19 @@ hold on;
 plot(F, ".")
 % [y_step, t_step] = step(sys_damped, 100);
 % plot(t_step, y_step)
-hold off;
 ylabel("Force [N]")
 xlabel("Time [s]")
 legend("Analytical Solution", "Numerical Solution ode-23")
 title("Simulink Step Response (n = 5)")
 
 figure
+subplot(1,2,1)
 plot(F.Time, abs(y_step_analitycal - F.Data) / abs(y_step_analitycal))
 xlabel("Time [s]")
 ylabel("Normalized error relative to the analytical solution")
 title("Error of numerical integration")
 
-figure
+subplot(1,2,2)
 plot(F.Time(2:end) - F.Time(1:end - 1))
 xlabel("Timestep")
 ylabel("Timestep duration [s]")
