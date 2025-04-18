@@ -218,15 +218,16 @@ y_numerical_45 = sys_damped.C * x_numerical_45' + sys_damped.D * u(t_numerical_4
 [t_numerical_23, x_numerical_23] = ode23(odefun, [0, t_f], x0);
 y_numerical_23 = sys_damped.C * x_numerical_23' + sys_damped.D * u(t_numerical_23);
 
-figure
-plot(t_numerical_45, y_numerical_45, 'DisplayName', 'Step - ode45');
-hold on;
-plot(t_numerical_23, y_numerical_23, 'DisplayName', 'Step - ode23');
-plot(t_step_analitycal, y_step_analitycal, 'DisplayName', 'Step - Analytical');
-legend('Location', 'best');
-grid on;
-xlabel('Time [s]');
-ylabel('Step response [N]');
+% QUESTA FIGURE è di troppo (c'è uguale anche sotto!!!)
+% figure
+% plot(t_numerical_45, y_numerical_45, 'DisplayName', 'Step - ode45');
+% hold on;
+% plot(t_numerical_23, y_numerical_23, 'DisplayName', 'Step - ode23');
+% plot(t_step_analitycal, y_step_analitycal, 'DisplayName', 'Step - Analytical');
+% legend('Location', 'best');
+% grid on;
+% xlabel('Time [s]');
+% ylabel('Step response [N]');
 
 % Extra: add response with "frozen liquid"
 t_frozen = 0:0.01:t_f;
@@ -237,7 +238,8 @@ step_response_figure = figure;
 plot(t_step, y_step, 'DisplayName', 'Step');
 hold on;
 plot(t_step_analitycal, y_step_analitycal, 'DisplayName', 'Analitycal');
-plot(t_numerical, y_numerical, 'DisplayName', 'Numerical');
+plot(t_numerical_23, y_numerical_23, 'DisplayName', 'Numerical: ode23');
+plot(t_numerical_45, y_numerical_45, 'DisplayName', 'Numerical: ode45');
 plot(t_frozen, y_frozen, 'DisplayName', 'Frozen liquid');
 grid on;
 xlabel('Time [s]');
