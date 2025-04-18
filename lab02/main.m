@@ -330,6 +330,34 @@ legend('$\theta(t)$', '$\bar{\theta}(t)$', 'Interpreter', 'latex');
 save_figure(task5_u3_theta_lin, 'task5_u3_theta_lin.png')
 title('Response to 25 N pulse force on the cart');
 
+%%  Task 1.6 – Comparison of the nonlinear and linear response
+% Repeat Task 1.5 using Simulink models
+
+for k = [1, 5, 25]
+
+    sim_pulse = sim('simulink_double_step.slx');
+
+    u = sim_pulse.u; % Forcing term
+    y = sim_pulse.y; % Output history
+
+    hold on;
+    subplot(1, 3, 1)
+    plot(y.Time, u)
+    xlabel("Time [s]")
+    ylabel("Input [N]")
+    hold on;
+    subplot(1, 3, 2)
+    plot(y.Time, y.Data(:, 1))
+    xlabel("Time [s]")
+    ylabel("x [m]")
+    hold on;
+    subplot(1, 3, 3)
+    plot(y.Time, y.Data(:, 2))
+    xlabel("Time [s]")
+    ylabel("Theta [-]")
+
+end
+
 %% Task 2.1 – Mathematical model
 % A. Derive the nonlinear EOM of the system
 % (show and comment every step of the derivation).
@@ -397,10 +425,8 @@ rlocus(G);
 % the behavior with respect to the system response.
 % D. Repeat point C. using a Simulink® model.
 
-Kp = 2.7496e+03;
-Kd = 156.4370;
-% Kp = 86.63;
-% Kd = 6.75;
+Kp = 86.63;
+Kd = 6.75;
 
 s = tf('s');
 
@@ -408,9 +434,9 @@ R = Kp + Kd * s; % PD controller
 L = R * G; % open-loop transfer function
 F = L / (1 + L); % closed-loop transfer function
 
-x0 = [0; 0; pi; 0];
+x0 = [0; 0; 0; 0];
 
-r = @(t) [0; 0; 0; 0]; % reference input
+r = @(t) x0; % reference input
 d = @(t) 1 * (t <= 0.1);
 
 tspan = [0 20];
