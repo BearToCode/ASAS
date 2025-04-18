@@ -7,6 +7,7 @@
     "asymp",
     "Benassi",
     "blkdiag",
+    "conv",
     "Diambri",
     "disp",
     "Dozio",
@@ -14,6 +15,7 @@
     "dtheta",
     "expm",
     "exportgraphics",
+    "fmincon",
     "fprintf",
     "genpath",
     "ilaplace",
@@ -25,6 +27,8 @@
     "linspace",
     "logspace",
     "odefun",
+    "Optim",
+    "optimoptions",
     "Pellizzer",
     "pidtune",
     "polydiv",
@@ -49,5 +53,8 @@
   ],
   "[matlab]": {
     "editor.defaultFormatter": "AffenWiesel.matlab-formatter"
+  },
+  "[svelte]": {
+    "editor.defaultFormatter": "svelte.svelte-vscode"
   }
 }

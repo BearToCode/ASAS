@@ -397,8 +397,10 @@ rlocus(G);
 % the behavior with respect to the system response.
 % D. Repeat point C. using a Simulink® model.
 
-Kp = 86.63;
-Kd = 6.75;
+Kp = 2.7496e+03;
+Kd = 156.4370;
+% Kp = 86.63;
+% Kd = 6.75;
 
 s = tf('s');
 
@@ -406,9 +408,9 @@ R = Kp + Kd * s; % PD controller
 L = R * G; % open-loop transfer function
 F = L / (1 + L); % closed-loop transfer function
 
-x0 = [0; 0; 0; 0];
+x0 = [0; 0; pi; 0];
 
-r = @(t) x0; % reference input
+r = @(t) [0; 0; 0; 0]; % reference input
 d = @(t) 1 * (t <= 0.1);
 
 tspan = [0 20];
