@@ -148,6 +148,19 @@ title('Response to 25 N pulse force on the cart');
 linear_sys = ipend_linear(params);
 [G_x, G_theta] = ipend_tf(params);
 
+Co=ctrb(linear_sys);
+if det(Co)==0
+    disp("The system is not controllable")
+end
+Ob_x=obsv(linear_sys.A,linear_sys.C(1,:));
+if det(Ob_x)==0
+    disp("x is not comp. observable")
+end
+Ob_t=obsv(linear_sys.A,linear_sys.C(2,:));
+if det(Ob_t)==0
+    disp("theta is not comp. observable")
+end
+
 G_x_figure = figure;
 pzmap(G_x);
 save_figure(G_x_figure, 'task4_pzmap_x.png')
