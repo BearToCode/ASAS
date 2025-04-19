@@ -65,71 +65,71 @@ max_pos = max([max(pos1), max(pos2), max(pos3)]);
 min_theta = min([min(theta1), min(theta2), min(theta3)]);
 max_theta = max([max(theta1), max(theta2), max(theta3)]);
 
-task1_u1_pos = figure;
-plot(t1, pos1, 'Color', "#77AC30");
+figure;
+plot(t1, pos1, 'Color', "#77AC30", 'LineWidth', 1.5);
 grid on;
 xlabel('Time [s]');
 ylabel('Cart position [m]');
 ylim([0 max_pos]);
 legend('$x(t)$', 'Interpreter', 'latex');
-
-save_figure(task1_u1_pos, 'task1_u1_pos.png')
 title('Response to 1 N pulse force on the cart');
 
-task1_u1_theta = figure;
-plot(t1, theta1, 'Color', "#4DBEEE");
+save_figure('task1_u1_pos.png')
+
+figure;
+plot(t1, theta1, 'Color', "#4DBEEE", 'LineWidth', 1.5);
 grid on;
 xlabel('Time [s]');
 ylabel('Pendulum angle [°]');
 ylim([min_theta max_theta]);
 legend('$\theta(t)$', 'Interpreter', 'latex');
-
-save_figure(task1_u1_theta, 'task1_u1_theta.png')
 title('Response to 1 N pulse force on the cart');
 
-task_u2_pos = figure;
-plot(t2, pos2, 'Color', "#77AC30");
+save_figure('task1_u1_theta.png')
+
+figure;
+plot(t2, pos2, 'Color', "#77AC30", 'LineWidth', 1.5);
 grid on;
 xlabel('Time [s]');
 ylabel('Cart position [m]');
 ylim([0 max_pos]);
 legend('$x(t)$', 'Interpreter', 'latex');
-
-save_figure(task_u2_pos, 'task1_u2_pos.png')
 title('Response to 5 N pulse force on the cart');
 
-task_u2_theta = figure;
-plot(t2, theta2, 'Color', "#4DBEEE");
+save_figure('task1_u2_pos.png')
+
+figure;
+plot(t2, theta2, 'Color', "#4DBEEE", 'LineWidth', 1.5);
 grid on;
 xlabel('Time [s]');
 ylabel('Pendulum angle [°]');
 ylim([min_theta max_theta]);
 legend('$\theta(t)$', 'Interpreter', 'latex');
-
-save_figure(task_u2_theta, 'task1_u2_theta.png')
 title('Response to 5 N pulse force on the cart');
 
-task_u3_pos = figure;
-plot(t3, pos3, 'Color', "#77AC30");
+save_figure('task1_u2_theta.png')
+
+figure;
+plot(t3, pos3, 'Color', "#77AC30", 'LineWidth', 1.5);
 grid on;
 xlabel('Time [s]');
 ylabel('Cart position [m]');
 ylim([0 max_pos]);
 legend('$x(t)$', 'Interpreter', 'latex');
-
-save_figure(task_u3_pos, 'task1_u3_pos.png')
 title('Response to 25 N pulse force on the cart');
 
-task_u3_theta = figure;
-plot(t3, theta3, 'Color', "#4DBEEE");
+save_figure('task1_u3_pos.png')
+
+figure;
+plot(t3, theta3, 'Color', "#4DBEEE", 'LineWidth', 1.5);
 grid on;
 xlabel('Time [s]');
 ylabel('Pendulum angle [°]');
 ylim([min_theta max_theta]);
 legend('$\theta(t)$', 'Interpreter', 'latex');
-
-save_figure(task_u3_theta, 'task1_u3_theta.png')
 title('Response to 25 N pulse force on the cart');
+
+save_figure('task1_u3_theta.png')
 
 %% Task 1.3 – Nonlinear response to a force applied on the cart
 % A. Repeat Task 1.2 using a Simulink model based on integral block approach
@@ -148,15 +148,15 @@ title('Response to 25 N pulse force on the cart');
 linear_sys = ipend_linear(params);
 [G_x, G_theta] = ipend_tf(params);
 
-G_x_figure = figure;
+figure;
 pzmap(G_x);
-save_figure(G_x_figure, 'task4_pzmap_x.png')
 title('Pole-Zero Map of the Linearized System - $x$', 'Interpreter', 'latex');
+save_figure('task4_pzmap_x.png')
 
-G_theta_figure = figure;
+figure;
 pzmap(G_theta);
-save_figure(G_theta_figure, 'task4_pzmap_theta.png')
 title('Pole-Zero Map of the Linearized System - $\theta$', 'Interpreter', 'latex');
+save_figure('task4_pzmap_theta.png')
 
 db = @(x) 20 * log10(x);
 
@@ -173,7 +173,7 @@ mag_real_theta = squeeze(mag_real_theta);
 phase_real_x = squeeze(phase_real_x);
 phase_real_theta = squeeze(phase_real_theta);
 
-task4_bode_x = figure;
+figure;
 subplot(2, 1, 1);
 semilogx(w, db(mag_asymp_x), 'DisplayName', 'Asymptotic');
 hold on;
@@ -194,9 +194,9 @@ ylabel('Phase [°]');
 legend('$\angle \bar{G_x}(j\omega)$', '$\angle G_x(j\omega)$', 'Interpreter', 'latex', 'Location', 'Best');
 title('Bode Diagram of the Linearized System - $G_x$', 'Interpreter', 'latex');
 
-save_figure(task4_bode_x, 'task4_bode_x.png')
+save_figure('task4_bode_x.png')
 
-task4_bode_theta = figure;
+figure;
 subplot(2, 1, 1);
 semilogx(w, db(mag_asymp_theta), 'DisplayName', 'Asymptotic');
 hold on;
@@ -217,7 +217,7 @@ ylabel('Phase [°]');
 legend('$\angle \bar{G_\theta}(j\omega)$', '$\angle G_\theta(j\omega)$', 'Interpreter', 'latex', 'Location', 'Best');
 title('Bode Diagram of the Linearized System - $G_\theta$', 'Interpreter', 'latex');
 
-save_figure(task4_bode_theta, 'task4_bode_theta.png')
+save_figure('task4_bode_theta.png')
 
 %% Task 1.5 – Comparison of the nonlinear and linear response
 % Starting from the initial position corresponding to the equilibrium point x0
@@ -252,83 +252,83 @@ max_pos_lin = max([max(pos1_lin), max(pos2_lin), max(pos3_lin)]);
 min_theta_lin = min([min(theta1_lin), min(theta2_lin), min(theta3_lin)]);
 max_theta_lin = max([max(theta1_lin), max(theta2_lin), max(theta3_lin)]);
 
-task5_u1_pos_lin = figure;
-plot(t1, pos1, 'Color', "#77AC30", 'DisplayName', 'Nonlinear');
+figure;
+plot(t1, pos1, 'Color', "#77AC30", 'DisplayName', 'Nonlinear', 'LineWidth', 1.5);
 hold on;
-plot(t1_lin, pos1_lin, 'Color', "#D95319", 'DisplayName', 'Linear');
+plot(t1_lin, pos1_lin, 'Color', "#D95319", 'DisplayName', 'Linear', 'LineWidth', 1.5);
 grid on;
 xlabel('Time [s]');
 ylabel('Cart position [m]');
 ylim([0 max_pos_lin]);
 legend('$x(t)$', '$\bar{x}(t)$', 'Interpreter', 'latex');
-
-save_figure(task5_u1_pos_lin, 'task5_u1_pos_lin.png')
 title('Response to 1 N pulse force on the cart');
 
-task5_u1_theta_lin = figure;
-plot(t1, theta1, 'Color', "#4DBEEE", 'DisplayName', 'Nonlinear');
+save_figure('task5_u1_pos_lin.png')
+
+figure;
+plot(t1, theta1, 'Color', "#4DBEEE", 'DisplayName', 'Nonlinear', 'LineWidth', 1.5);
 hold on;
-plot(t1_lin, theta1_lin, 'Color', "#A2142F", 'DisplayName', 'Linear');
+plot(t1_lin, theta1_lin, 'Color', "#A2142F", 'DisplayName', 'Linear', 'LineWidth', 1.5);
 grid on;
 xlabel('Time [s]');
 ylabel('Pendulum angle [°]');
 ylim([min_theta_lin max_theta_lin]);
 legend('$\theta(t)$', '$\bar{\theta}(t)$', 'Interpreter', 'latex');
-
-save_figure(task5_u1_theta_lin, 'task5_u1_theta_lin.png')
 title('Response to 1 N pulse force on the cart');
 
-task5_u2_pos_lin = figure;
-plot(t2, pos2, 'Color', "#77AC30", 'DisplayName', 'Nonlinear');
+save_figure('task5_u1_theta_lin.png')
+
+figure;
+plot(t2, pos2, 'Color', "#77AC30", 'DisplayName', 'Nonlinear', 'LineWidth', 1.5);
 hold on;
-plot(t2_lin, pos2_lin, 'Color', "#D95319", 'DisplayName', 'Linear');
+plot(t2_lin, pos2_lin, 'Color', "#D95319", 'DisplayName', 'Linear', 'LineWidth', 1.5);
 grid on;
 xlabel('Time [s]');
 ylabel('Cart position [m]');
 ylim([0 max_pos_lin]);
 legend('$x(t)$', '$\bar{x}(t)$', 'Interpreter', 'latex');
-
-save_figure(task5_u2_pos_lin, 'task5_u2_pos_lin.png')
 title('Response to 5 N pulse force on the cart');
 
-task5_u2_theta_lin = figure;
-plot(t2, theta2, 'Color', "#4DBEEE", 'DisplayName', 'Nonlinear');
+save_figure('task5_u2_pos_lin.png')
+
+figure;
+plot(t2, theta2, 'Color', "#4DBEEE", 'DisplayName', 'Nonlinear', 'LineWidth', 1.5);
 hold on;
-plot(t2_lin, theta2_lin, 'Color', "#A2142F", 'DisplayName', 'Linear');
+plot(t2_lin, theta2_lin, 'Color', "#A2142F", 'DisplayName', 'Linear', 'LineWidth', 1.5);
 grid on;
 xlabel('Time [s]');
 ylabel('Pendulum angle [°]');
 ylim([min_theta_lin max_theta_lin]);
 legend('$\theta(t)$', '$\bar{\theta}(t)$', 'Interpreter', 'latex');
-
-save_figure(task5_u2_theta_lin, 'task5_u2_theta_lin.png')
 title('Response to 5 N pulse force on the cart');
 
-task5_u3_pos_lin = figure;
-plot(t3, pos3, 'Color', "#77AC30", 'DisplayName', 'Nonlinear');
+save_figure('task5_u2_theta_lin.png')
+
+figure;
+plot(t3, pos3, 'Color', "#77AC30", 'DisplayName', 'Nonlinear', 'LineWidth', 1.5);
 hold on;
-plot(t3_lin, pos3_lin, 'Color', "#D95319", 'DisplayName', 'Linear');
+plot(t3_lin, pos3_lin, 'Color', "#D95319", 'DisplayName', 'Linear', 'LineWidth', 1.5);
 grid on;
 xlabel('Time [s]');
 ylabel('Cart position [m]');
 ylim([0 max_pos_lin]);
 legend('$x(t)$', '$\bar{x}(t)$', 'Interpreter', 'latex');
-
-save_figure(task5_u3_pos_lin, 'task5_u3_pos_lin.png')
 title('Response to 25 N pulse force on the cart');
 
-task5_u3_theta_lin = figure;
-plot(t3, theta3, 'Color', "#4DBEEE", 'DisplayName', 'Nonlinear');
+save_figure('task5_u3_pos_lin.png')
+
+figure;
+plot(t3, theta3, 'Color', "#4DBEEE", 'DisplayName', 'Nonlinear', 'LineWidth', 1.5);
 hold on;
-plot(t3_lin, theta3_lin, 'Color', "#A2142F", 'DisplayName', 'Linear');
+plot(t3_lin, theta3_lin, 'Color', "#A2142F", 'DisplayName', 'Linear', 'LineWidth', 1.5);
 grid on;
 xlabel('Time [s]');
 ylabel('Pendulum angle [°]');
 ylim([min_theta_lin max_theta_lin]);
 legend('$\theta(t)$', '$\bar{\theta}(t)$', 'Interpreter', 'latex');
-
-save_figure(task5_u3_theta_lin, 'task5_u3_theta_lin.png')
 title('Response to 25 N pulse force on the cart');
+
+save_figure('task5_u3_theta_lin.png')
 
 %%  Task 1.6 – Comparison of the nonlinear and linear response
 % Repeat Task 1.5 using Simulink models
@@ -377,6 +377,7 @@ params.m = 0.1; % [kg]
 params.l = 0.75; % [m]
 params.g = 9.8; % [m/s^2]
 
+[f, g] = ipend_control_nonlinear(params);
 [A, B_u, B_d, C, D_u, D_d] = ipend_control_linear(params);
 
 %% Task 2.2 – Open-loop transfer function
@@ -387,10 +388,10 @@ params.g = 9.8; % [m/s^2]
 
 [G_x, G_theta] = ipend_control_tf(params);
 
-G_figure = figure;
+figure;
 pzmap(G_theta);
-save_figure(G_figure, 'task2_pzmap.png')
 title('Pole-Zero Map of the Open-Loop Transfer Function - $G(s)$', 'Interpreter', 'latex');
+save_figure('task2_pzmap.png')
 
 %% Task 2.3 – Proportional (P) control for stabilization
 % Let’s consider a proportional (P) control:
@@ -428,42 +429,25 @@ rlocus(G_theta);
 Kp_theta = 606;
 Kd_theta = 47;
 
-s = tf('s');
-
-R_theta = Kp_theta + Kd_theta * s; % PD controller
-L_theta = R_theta * G_theta; % open-loop transfer function
-F_theta = L_theta / (1 + L_theta); % closed-loop transfer function
-
+% Integration parameters
 x0 = [0; 0; 0; 0];
-
 r = @(t) x0; % reference input
 d = @(t) 1 * (t <= 0.1);
-
 tspan = [0 20];
 
-[f, ~] = ipend_control_nonlinear(params);
-
+% Partial state PD controller
 pd_theta = @(x) Kp_theta * x(3) + Kd_theta * x(4); % PD control law
 
 odefun = @(t, x) f(x, pd_theta(r(t) - x), d(t));
-
 [t, x] = ode45(odefun, tspan, x0);
 
-theta = x(:, 3);
-
-control = zeros(length(t), 1);
-
-for i = 1:length(t)
-    error = r(t(i)) - x(i, :)';
-    control(i) = pd_theta(error);
-end
-
-theta = theta .* 180 / pi; % convert to degrees
+theta = x(:, 3) .* 180 / pi;
+control = arrayfun(@(idx) pd_theta(r(t(idx)) - x(idx, :)'), length(t)); % control force
 
 max_theta = max(abs(theta));
 max_control = max(abs(control));
 
-control_theta_figure = figure;
+figure;
 plot(t, control, 'DisplayName', 'Control Force');
 hold on;
 grid on;
@@ -475,9 +459,9 @@ plot(t, theta, 'DisplayName', 'Pendulum Angle');
 ylabel('Pendulum Angle [°]');
 ylim([-max_theta max_theta]);
 legend('$F_c(t)$', '$\theta(t)$', 'Interpreter', 'latex', 'Location', 'Best');
-
-save_figure(control_theta_figure, 'task2_control_theta.png')
 title('Control Force and Pendulum Angle - PD Control', 'Interpreter', 'latex');
+
+save_figure('task2_control_theta.png')
 
 %% Task 2.5 – Partial and full state feedback control
 % A. Show that the PD controller designed in Task 2.4 corresponds to a partial state feedback control, write
@@ -487,15 +471,16 @@ title('Control Force and Pendulum Angle - PD Control', 'Interpreter', 'latex');
 % the effect on performance (cart position and pendulum angle) and control effort of different selections
 % of closed-loop poles. Comment the differences with respect to point A.
 
+% Create a surface for the closed-loop system showing the max real part of the roots
 Kp_x_space = linspace(-100, 100, 50);
 Kd_x_space = linspace(-100, 100, 50);
 
 [Kp_x, Kd_x] = meshgrid(Kp_x_space, Kd_x_space);
 [F_den] = ipend_full_control_den(params);
 
-f = @(Kp_x, Kd_x) max(real(roots(F_den(Kp_x, Kd_x, Kp_theta, Kd_theta))));
+f_plot = @(Kp_x, Kd_x) max(real(roots(F_den(Kp_x, Kd_x, Kp_theta, Kd_theta))));
 
-z = arrayfun(f, Kp_x, Kd_x);
+z = arrayfun(f_plot, Kp_x, Kd_x);
 
 figure;
 surf(Kp_x, Kd_x, z);
@@ -503,17 +488,22 @@ xlabel('Kp_x');
 ylabel('Kd_x');
 zlabel('Real Part of Roots');
 title('Real Part of Roots of the Closed-Loop System', 'Interpreter', 'latex');
+view(235, 45);
+save_figure('task2_roots.png')
 
-% R_x = Kp_x + Kd_x * s; % PD controller for cart position
-% L_x = R_x * G_x; % open-loop transfer function for cart position
-% F_x = L_x / (1 + L_x); % closed-loop transfer function for cart position
+contourf(Kp_x, Kd_x, z, 20);
+colorbar;
+xlabel('Kp_x');
+ylabel('Kd_x');
+title('Real Part of Roots of the Closed-Loop System', 'Interpreter', 'latex');
+save_figure('task2_contour.png')
 
+% Use a global PD controller with the gains determined from the plot
 Kp_x = -79;
 Kd_x = -46;
 
 pd = @(x) Kp_x * x(1) + Kd_x * x(2) + Kp_theta * x(3) + Kd_theta * x(4); % PD control law
 
-[f, g] = ipend_control_nonlinear(params);
 odefun = @(t, x) f(x, pd(r(t) - x), d(t));
 
 [t, x] = ode45(odefun, tspan, x0);
@@ -534,22 +524,18 @@ max_pos = max(abs(pos));
 max_theta = max(abs(theta));
 max_control = max(abs(control));
 
-control_theta_figure = figure;
-plot(t, control, 'DisplayName', 'Control Force');
-hold on;
-grid on;
-xlabel('Time [s]');
-ylabel('Control Force [N]');
-ylim([-max_control max_control]);
-yyaxis right;
-plot(t, pos, 'DisplayName', 'Cart Position');
-ylabel('Cart Position [m]');
-ylim([-max_pos max_pos]);
-yyaxis left;
-plot(t, theta, 'DisplayName', 'Pendulum Angle');
+figure;
+plot(t, theta, 'DisplayName', 'Pendulum Angle', 'LineWidth', 1.5);
+ylim([-max_theta max_theta]);
 ylabel('Pendulum Angle [°]');
+hold on;
 yyaxis right;
-legend('$F_c(t)$', '$x(t)$', 'Interpreter', 'latex', 'Location', 'Best');
+plot(t, pos, 'DisplayName', 'Cart Position', 'LineWidth', 1.5);
+ylim([-max_pos max_pos]);
+ylabel('Cart Position [m]');
+xlabel('Time [s]');
+grid on;
+legend('$\theta(t)$', '$x(t)$', 'Interpreter', 'latex', 'Location', 'Best');
+title('Pendulum Angle and Cart Position - Global PD Control', 'Interpreter', 'latex');
 
-save_figure(control_theta_figure, 'task2_control_global.png')
-title('Control Force, Cart position and Pendulum Angle - Global PD Control', 'Interpreter', 'latex');
+save_figure('task2_control_global.png')
