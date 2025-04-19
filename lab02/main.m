@@ -385,10 +385,10 @@ params.g = 9.8; % [m/s^2]
 % B. Derive the mathematical expression and compute the numerical values of
 % the zeros and poles of G(s) and plot the pole/zero map.
 
-[~, G] = ipend_control_tf(params);
+[G_x, G_theta] = ipend_control_tf(params);
 
 G_figure = figure;
-pzmap(G);
+pzmap(G_theta);
 save_figure(G_figure, 'task2_pzmap.png')
 title('Pole-Zero Map of the Open-Loop Transfer Function - $G(s)$', 'Interpreter', 'latex');
 
@@ -401,7 +401,7 @@ title('Pole-Zero Map of the Open-Loop Transfer Function - $G(s)$', 'Interpreter'
 % C. Confirm the previous result using the root locus technique and discuss the loci behavior.
 % D. Determine the minimum value of the control gain such that the closed-loop system is marginally stable.
 
-rlocus(G);
+rlocus(G_theta);
 
 % TODO: D
 
@@ -425,14 +425,14 @@ rlocus(G);
 % the behavior with respect to the system response.
 % D. Repeat point C. using a Simulink® model.
 
-Kp = 86.63;
-Kd = 6.75;
+Kp_theta = 606;
+Kd_theta = 47;
 
 s = tf('s');
 
-R = Kp + Kd * s; % PD controller
-L = R * G; % open-loop transfer function
-F = L / (1 + L); % closed-loop transfer function
+R_theta = Kp_theta + Kd_theta * s; % PD controller
+L_theta = R_theta * G_theta; % open-loop transfer function
+F_theta = L_theta / (1 + L_theta); % closed-loop transfer function
 
 x0 = [0; 0; 0; 0];
 
@@ -441,23 +441,21 @@ d = @(t) 1 * (t <= 0.1);
 
 tspan = [0 20];
 
-[f, g] = ipend_control_nonlinear(params);
+[f, ~] = ipend_control_nonlinear(params);
 
-pd = @(x) Kp * x(3) + Kd * x(4); % PD control law
+pd_theta = @(x) Kp_theta * x(3) + Kd_theta * x(4); % PD control law
 
-odefun = @(t, x) f(x, pd(r(t) - x), d(t));
+odefun = @(t, x) f(x, pd_theta(r(t) - x), d(t));
 
 [t, x] = ode45(odefun, tspan, x0);
 
-pos = x(:, 1);
 theta = x(:, 3);
-theta_dot = x(:, 4);
 
 control = zeros(length(t), 1);
 
 for i = 1:length(t)
     error = r(t(i)) - x(i, :)';
-    control(i) = pd(error);
+    control(i) = pd_theta(error);
 end
 
 theta = theta .* 180 / pi; % convert to degrees
@@ -480,3 +478,78 @@ legend('$F_c(t)$', '$\theta(t)$', 'Interpreter', 'latex', 'Location', 'Best');
 
 save_figure(control_theta_figure, 'task2_control_theta.png')
 title('Control Force and Pendulum Angle - PD Control', 'Interpreter', 'latex');
+
+%% Task 2.5 – Partial and full state feedback control
+% A. Show that the PD controller designed in Task 2.4 corresponds to a partial state feedback control, write
+% the corresponding closed-loop linear state-space model, evaluate the resulting closed-loop poles
+% and show the limitations of the PD control solution in terms of feasibility on a real system.
+% B. Extending the PD approach to a full state feedback control, compute the control gains and evaluate
+% the effect on performance (cart position and pendulum angle) and control effort of different selections
+% of closed-loop poles. Comment the differences with respect to point A.
+
+Kp_x_space = linspace(-100, 100, 50);
+Kd_x_space = linspace(-100, 100, 50);
+
+[Kp_x, Kd_x] = meshgrid(Kp_x_space, Kd_x_space);
+[F_den] = ipend_full_control_den(params);
+
+f = @(Kp_x, Kd_x) max(real(roots(F_den(Kp_x, Kd_x, Kp_theta, Kd_theta))));
+
+z = arrayfun(f, Kp_x, Kd_x);
+
+figure;
+surf(Kp_x, Kd_x, z);
+xlabel('Kp_x');
+ylabel('Kd_x');
+zlabel('Real Part of Roots');
+title('Real Part of Roots of the Closed-Loop System', 'Interpreter', 'latex');
+
+% R_x = Kp_x + Kd_x * s; % PD controller for cart position
+% L_x = R_x * G_x; % open-loop transfer function for cart position
+% F_x = L_x / (1 + L_x); % closed-loop transfer function for cart position
+
+Kp_x = -79;
+Kd_x = -46;
+
+pd = @(x) Kp_x * x(1) + Kd_x * x(2) + Kp_theta * x(3) + Kd_theta * x(4); % PD control law
+
+[f, g] = ipend_control_nonlinear(params);
+odefun = @(t, x) f(x, pd(r(t) - x), d(t));
+
+[t, x] = ode45(odefun, tspan, x0);
+
+pos = x(:, 1);
+theta = x(:, 3) .* 180 / pi;
+theta_dot = x(:, 4);
+
+control = zeros(length(t), 1);
+
+for i = 1:length(t)
+    error = r(t(i)) - x(i, :)';
+    control(i) = pd(error);
+end
+
+error = r(t) - x(:, :)';
+max_pos = max(abs(pos));
+max_theta = max(abs(theta));
+max_control = max(abs(control));
+
+control_theta_figure = figure;
+plot(t, control, 'DisplayName', 'Control Force');
+hold on;
+grid on;
+xlabel('Time [s]');
+ylabel('Control Force [N]');
+ylim([-max_control max_control]);
+yyaxis right;
+plot(t, pos, 'DisplayName', 'Cart Position');
+ylabel('Cart Position [m]');
+ylim([-max_pos max_pos]);
+yyaxis left;
+plot(t, theta, 'DisplayName', 'Pendulum Angle');
+ylabel('Pendulum Angle [°]');
+yyaxis right;
+legend('$F_c(t)$', '$x(t)$', 'Interpreter', 'latex', 'Location', 'Best');
+
+save_figure(control_theta_figure, 'task2_control_global.png')
+title('Control Force, Cart position and Pendulum Angle - Global PD Control', 'Interpreter', 'latex');

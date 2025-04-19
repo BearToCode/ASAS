@@ -26,6 +26,8 @@
     "linearizing",
     "linspace",
     "logspace",
+    "meshgrid",
+    "numden",
     "odefun",
     "Optim",
     "optimoptions",

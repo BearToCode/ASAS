@@ -91,3 +91,15 @@ G_theta = C(2, :) * inv(s * eye(4) - A) * B + D(2, :);
 
 G_x = simplify(G_x);
 G_theta = simplify(G_theta);
+
+syms Kp_x Kd_x Kp_theta Kd_theta real;
+R_x = Kp_x + Kd_x * s;
+R_theta = Kp_theta + Kd_theta * s;
+
+[F_tt, F_xx, F_tx, F_xt] = ipend_full_control(G_x, G_theta, R_x, R_theta);
+[~, F_tt_den] = numden(simplify(F_tt));
+[~, F_xx_den] = numden(simplify(F_xx));
+[~, F_tx_den] = numden(simplify(F_tx));
+[~, F_xt_den] = numden(simplify(F_xt));
+
+% AlL THE SAME!!
