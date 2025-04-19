@@ -7,6 +7,8 @@
     "asymp",
     "Benassi",
     "blkdiag",
+    "colorbar",
+    "contourf",
     "conv",
     "Diambri",
     "disp",
@@ -15,6 +17,7 @@
     "dtheta",
     "expm",
     "exportgraphics",
+    "findobj",
     "fmincon",
     "fprintf",
     "genpath",
@@ -51,6 +54,7 @@
     "ylim",
     "yline",
     "yyaxis",
+    "zlabel",
     "zpkdata"
   ],
   "[matlab]": {
