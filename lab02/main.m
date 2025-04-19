@@ -479,6 +479,19 @@ legend('$F_c(t)$', '$\theta(t)$', 'Interpreter', 'latex', 'Location', 'Best');
 save_figure(control_theta_figure, 'task2_control_theta.png')
 title('Control Force and Pendulum Angle - PD Control', 'Interpreter', 'latex');
 
+% simulink
+
+sim_control= sim('nonlinear_control.slx');
+
+d_sim = sim_control.d; % Disturbance
+x_sim = sim_control.x; % Output history
+
+figure
+
+plot(x_sim.time, x_sim.signals.values(:,3)*180/pi)
+xlabel("Time [s]")
+ylabel('Pendulum Angle [°]')
+
 %% Task 2.5 – Partial and full state feedback control
 % A. Show that the PD controller designed in Task 2.4 corresponds to a partial state feedback control, write
 % the corresponding closed-loop linear state-space model, evaluate the resulting closed-loop poles
