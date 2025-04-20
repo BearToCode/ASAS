@@ -1,5 +1,9 @@
-function save_figure(filename)
+function save_figure(filename, keep_title)
     % SAVE_FIGURE Save the figure to a file with a specific filename.
+
+    if nargin < 2
+        keep_title = false;
+    end
 
     if ~exist('./dist', 'dir')
         mkdir('./dist')
@@ -11,7 +15,10 @@ function save_figure(filename)
         starting_title = copy(get(gca, 'title'));
         starting_pos = fig.Position;
 
-        title('');
+        if ~keep_title
+            title('');
+        end
+
         fig.Position = [0 0 760 600];
         exportgraphics(fig, strcat("dist/", filename));
 

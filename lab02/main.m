@@ -66,71 +66,200 @@ max_pos = max([max(pos1), max(pos2), max(pos3)]);
 min_theta = min([min(theta1), min(theta2), min(theta3)]);
 max_theta = max([max(theta1), max(theta2), max(theta3)]);
 
+u1_color = "#0c66e4";
+u1_color_accent = "#579dff";
+u2_color = "#1f845a";
+u2_color_accent = "#4bce97";
+u3_color = "#c9372c";
+u3_color_accent = "#f87168";
+
 figure;
-plot(t1, pos1, 'Color', "#77AC30", 'LineWidth', 1.5);
+subplot(2, 3, 1)
+plot(t1, pos1, 'Color', u1_color, 'LineWidth', 1.5);
 grid on;
 xlabel('Time [s]');
 ylabel('Cart position [m]');
 ylim([0 max_pos]);
 legend('$x(t)$', 'Interpreter', 'latex');
-title('Response to 1 N pulse force on the cart');
+title('$x(t)$ response to $u_1(t)$', 'Interpreter', 'latex');
 
-save_figure('task1_u1_pos.png')
-
-figure;
-plot(t1, theta1, 'Color', "#4DBEEE", 'LineWidth', 1.5);
-grid on;
-xlabel('Time [s]');
-ylabel('Pendulum angle [°]');
-ylim([min_theta max_theta]);
-legend('$\theta(t)$', 'Interpreter', 'latex');
-title('Response to 1 N pulse force on the cart');
-
-save_figure('task1_u1_theta.png')
-
-figure;
-plot(t2, pos2, 'Color', "#77AC30", 'LineWidth', 1.5);
+subplot(2, 3, 2)
+plot(t2, pos2, 'Color', u2_color, 'LineWidth', 1.5);
 grid on;
 xlabel('Time [s]');
 ylabel('Cart position [m]');
 ylim([0 max_pos]);
 legend('$x(t)$', 'Interpreter', 'latex');
-title('Response to 5 N pulse force on the cart');
+title('$x(t)$ response to $u_2(t)$', 'Interpreter', 'latex');
 
-save_figure('task1_u2_pos.png')
-
-figure;
-plot(t2, theta2, 'Color', "#4DBEEE", 'LineWidth', 1.5);
-grid on;
-xlabel('Time [s]');
-ylabel('Pendulum angle [°]');
-ylim([min_theta max_theta]);
-legend('$\theta(t)$', 'Interpreter', 'latex');
-title('Response to 5 N pulse force on the cart');
-
-save_figure('task1_u2_theta.png')
-
-figure;
-plot(t3, pos3, 'Color', "#77AC30", 'LineWidth', 1.5);
+subplot(2, 3, 3)
+plot(t3, pos3, 'Color', u3_color, 'LineWidth', 1.5);
 grid on;
 xlabel('Time [s]');
 ylabel('Cart position [m]');
 ylim([0 max_pos]);
 legend('$x(t)$', 'Interpreter', 'latex');
-title('Response to 25 N pulse force on the cart');
+title('$x(t)$ response to $u_3(t)$', 'Interpreter', 'latex');
 
-save_figure('task1_u3_pos.png')
-
-figure;
-plot(t3, theta3, 'Color', "#4DBEEE", 'LineWidth', 1.5);
+subplot(2, 3, 4)
+plot(t1, theta1, 'Color', u1_color, 'LineWidth', 1.5);
 grid on;
 xlabel('Time [s]');
 ylabel('Pendulum angle [°]');
 ylim([min_theta max_theta]);
 legend('$\theta(t)$', 'Interpreter', 'latex');
-title('Response to 25 N pulse force on the cart');
+title('$\theta(t)$ response to $u_1(t)$', 'Interpreter', 'latex');
 
-save_figure('task1_u3_theta.png')
+subplot(2, 3, 5)
+plot(t2, theta2, 'Color', u2_color, 'LineWidth', 1.5);
+grid on;
+xlabel('Time [s]');
+ylabel('Pendulum angle [°]');
+ylim([min_theta max_theta]);
+legend('$\theta(t)$', 'Interpreter', 'latex');
+title('$\theta(t)$ response to $u_2(t)$', 'Interpreter', 'latex');
+
+subplot(2, 3, 6)
+plot(t3, theta3, 'Color', u3_color, 'LineWidth', 1.5);
+grid on;
+xlabel('Time [s]');
+ylabel('Pendulum angle [°]');
+ylim([min_theta max_theta]);
+legend('$\theta(t)$', 'Interpreter', 'latex');
+title('$\theta(t)$ response to $u_3(t)$', 'Interpreter', 'latex');
+
+save_figure('task1_composite.png', true)
+
+% Study the numerical performance of the integration method
+t1_ode45 = t1; t2_ode45 = t2; t3_ode45 = t3;
+pos1_ode45 = pos1; pos2_ode45 = pos2; pos3_ode45 = pos3;
+theta1_ode45 = theta1; theta2_ode45 = theta2; theta3_ode45 = theta3;
+
+% Use ode89 as reference method to estimate error
+[t1_ode89, x1_ode89] = ode89(odefun1, tspan, x0); % using ode89
+[t2_ode89, x2_ode89] = ode89(odefun2, tspan, x0);
+[t3_ode89, x3_ode89] = ode89(odefun3, tspan, x0);
+
+pos1_ode89 = x1_ode89(:, 1); % cart positions
+pos2_ode89 = x2_ode89(:, 1);
+pos3_ode89 = x3_ode89(:, 1);
+
+theta1_ode89 = x1_ode89(:, 3) .* 180 / pi; % pendulum angles
+theta2_ode89 = x2_ode89(:, 3) .* 180 / pi;
+theta3_ode89 = x3_ode89(:, 3) .* 180 / pi;
+
+dt1_ode45 = diff(t1_ode45); % time step for ode45
+dt2_ode45 = diff(t2_ode45);
+dt3_ode45 = diff(t3_ode45);
+
+dt1_ode45_mov50 = movmean(dt1_ode45, 50); % moving average of the time step for ode45
+dt2_ode45_mov50 = movmean(dt2_ode45, 50);
+dt3_ode45_mov50 = movmean(dt3_ode45, 50);
+
+f_error = @(t, value, ref_t, ref_values) abs(value - interp1(ref_t, ref_values, t)); % error function
+
+pos1_error = f_error(t1_ode45, pos1_ode45, t1_ode89, pos1_ode89); % error for cart position
+pos2_error = f_error(t2_ode45, pos2_ode45, t2_ode89, pos2_ode89);
+pos3_error = f_error(t3_ode45, pos3_ode45, t3_ode89, pos3_ode89);
+
+theta1_error = f_error(t1_ode45, theta1_ode45, t1_ode89, theta1_ode89); % error for pendulum angle
+theta2_error = f_error(t2_ode45, theta2_ode45, t2_ode89, theta2_ode89);
+theta3_error = f_error(t3_ode45, theta3_ode45, t3_ode89, theta3_ode89);
+
+max_dt = max([max(dt1_ode45), max(dt2_ode45), max(dt3_ode45)]); % maximum time step for ode45
+max_pos_error = max([max(pos1_error), max(pos2_error), max(pos3_error)]); % maximum error for cart position
+max_theta_error = max([max(theta1_error), max(theta2_error), max(theta3_error)]); % maximum error for pendulum angle
+
+% Create a 3x3 grid of subplots
+figure;
+subplot(3, 3, 1);
+plot(dt1_ode45, 'Color', u1_color, 'DisplayName', 'dt (ode45)', 'LineWidth', 1.5);
+hold on;
+plot(dt1_ode45_mov50, 'Color', u1_color_accent, 'DisplayName', 'dt (ode45 movmean)', 'LineWidth', 1.5);
+grid on;
+xlabel('Index');
+ylabel('Time step [s]');
+ylim([0 max_dt]);
+legend('dt (ode45)', 'dt (ode45 movmean)', 'Location', 'Best');
+title('Time step for $u_1(t)$', 'Interpreter', 'latex');
+
+subplot(3, 3, 2);
+plot(dt2_ode45, 'Color', u2_color, 'DisplayName', 'dt (ode45)', 'LineWidth', 1.5);
+hold on;
+plot(dt2_ode45_mov50, 'Color', u2_color_accent, 'DisplayName', 'dt (ode45 movmean)', 'LineWidth', 1.5);
+grid on;
+xlabel('Index');
+ylabel('Time step [s]');
+ylim([0 max_dt]);
+legend('dt (ode45)', 'dt (ode45 movmean)', 'Location', 'Best');
+title('Time step for $u_2(t)$', 'Interpreter', 'latex');
+
+subplot(3, 3, 3);
+plot(dt3_ode45, 'Color', u3_color, 'DisplayName', 'dt (ode45)', 'LineWidth', 1.5);
+hold on;
+plot(dt3_ode45_mov50, 'Color', u3_color_accent, 'DisplayName', 'dt (ode45 movmean)', 'LineWidth', 1.5);
+grid on;
+xlabel('Index');
+ylabel('Time step [s]');
+ylim([0 max_dt]);
+legend('dt (ode45)', 'dt (ode45 movmean)', 'Location', 'Best');
+title('Time step for $u_3(t)$', 'Interpreter', 'latex');
+
+subplot(3, 3, 4);
+plot(t1_ode45, pos1_error, 'Color', u1_color, 'DisplayName', 'Error (ode45)', 'LineWidth', 1.5);
+grid on;
+xlabel('Time [s]');
+ylabel('Error [m]');
+ylim([0 max_pos_error]);
+legend('Error (ode45)', 'Location', 'Best');
+title('$x(t)$ error for $u_1(t)$', 'Interpreter', 'latex');
+
+subplot(3, 3, 5);
+plot(t2_ode45, pos2_error, 'Color', u2_color, 'DisplayName', 'Error (ode45)', 'LineWidth', 1.5);
+grid on;
+xlabel('Time [s]');
+ylabel('Error [m]');
+ylim([0 max_pos_error]);
+legend('Error (ode45)', 'Location', 'Best');
+title('$x(t)$ error for $u_2(t)$', 'Interpreter', 'latex');
+
+subplot(3, 3, 6);
+plot(t3_ode45, pos3_error, 'Color', u3_color, 'DisplayName', 'Error (ode45)', 'LineWidth', 1.5);
+grid on;
+xlabel('Time [s]');
+ylabel('Error [m]');
+ylim([0 max_pos_error]);
+legend('Error (ode45)', 'Location', 'Best');
+title('$x(t)$ error for $u_3(t)$', 'Interpreter', 'latex');
+
+subplot(3, 3, 7);
+plot(t1_ode45, theta1_error, 'Color', u1_color, 'DisplayName', 'Error (ode45)', 'LineWidth', 1.5);
+grid on;
+xlabel('Time [s]');
+ylabel('Error [°]');
+ylim([0 max_theta_error]);
+legend('Error (ode45)', 'Location', 'Best');
+title('$\theta(t)$ error for $u_1(t)$', 'Interpreter', 'latex');
+
+subplot(3, 3, 8);
+plot(t2_ode45, theta2_error, 'Color', u2_color, 'DisplayName', 'Error (ode45)', 'LineWidth', 1.5);
+grid on;
+xlabel('Time [s]');
+ylabel('Error [°]');
+ylim([0 max_theta_error]);
+legend('Error (ode45)', 'Location', 'Best');
+title('$\theta(t)$ error for $u_2(t)$', 'Interpreter', 'latex');
+
+subplot(3, 3, 9);
+plot(t3_ode45, theta3_error, 'Color', u3_color, 'DisplayName', 'Error (ode45)', 'LineWidth', 1.5);
+grid on;
+xlabel('Time [s]');
+ylabel('Error [°]');
+ylim([0 max_theta_error]);
+legend('Error (ode45)', 'Location', 'Best');
+title('$\theta(t)$ error for $u_3(t)$', 'Interpreter', 'latex');
+
+save_figure('task1_errors.png', true)
 
 %% Task 1.3 – Nonlinear response to a force applied on the cart
 % A. Repeat Task 1.2 using a Simulink model based on integral block approach
@@ -272,82 +401,73 @@ min_theta_lin = min([min(theta1_lin), min(theta2_lin), min(theta3_lin)]);
 max_theta_lin = max([max(theta1_lin), max(theta2_lin), max(theta3_lin)]);
 
 figure;
-plot(t1, pos1, 'Color', "#77AC30", 'DisplayName', 'Nonlinear', 'LineWidth', 1.5);
+subplot(2, 3, 1)
+plot(t1, pos1, 'Color', u1_color, 'DisplayName', 'Nonlinear', 'LineWidth', 1.5);
 hold on;
-plot(t1_lin, pos1_lin, 'Color', "#D95319", 'DisplayName', 'Linear', 'LineWidth', 1.5);
+plot(t1_lin, pos1_lin, 'Color', u1_color_accent, 'DisplayName', 'Linear', 'LineWidth', 1.5);
 grid on;
 xlabel('Time [s]');
 ylabel('Cart position [m]');
 ylim([0 max_pos_lin]);
 legend('$x(t)$', '$\bar{x}(t)$', 'Interpreter', 'latex');
-title('Response to 1 N pulse force on the cart');
+title('$x(t)$ linear response to $u_1(t)$', 'Interpreter', 'latex');
 
-save_figure('task5_u1_pos_lin.png')
-
-figure;
-plot(t1, theta1, 'Color', "#4DBEEE", 'DisplayName', 'Nonlinear', 'LineWidth', 1.5);
+subplot(2, 3, 2)
+plot(t2, pos2, 'Color', u2_color, 'DisplayName', 'Nonlinear', 'LineWidth', 1.5);
 hold on;
-plot(t1_lin, theta1_lin, 'Color', "#A2142F", 'DisplayName', 'Linear', 'LineWidth', 1.5);
-grid on;
-xlabel('Time [s]');
-ylabel('Pendulum angle [°]');
-ylim([min_theta_lin max_theta_lin]);
-legend('$\theta(t)$', '$\bar{\theta}(t)$', 'Interpreter', 'latex');
-title('Response to 1 N pulse force on the cart');
-
-save_figure('task5_u1_theta_lin.png')
-
-figure;
-plot(t2, pos2, 'Color', "#77AC30", 'DisplayName', 'Nonlinear', 'LineWidth', 1.5);
-hold on;
-plot(t2_lin, pos2_lin, 'Color', "#D95319", 'DisplayName', 'Linear', 'LineWidth', 1.5);
+plot(t2_lin, pos2_lin, 'Color', u2_color_accent, 'DisplayName', 'Linear', 'LineWidth', 1.5);
 grid on;
 xlabel('Time [s]');
 ylabel('Cart position [m]');
 ylim([0 max_pos_lin]);
 legend('$x(t)$', '$\bar{x}(t)$', 'Interpreter', 'latex');
-title('Response to 5 N pulse force on the cart');
+title('$x(t)$ linear response to $u_2(t)$', 'Interpreter', 'latex');
 
-save_figure('task5_u2_pos_lin.png')
-
-figure;
-plot(t2, theta2, 'Color', "#4DBEEE", 'DisplayName', 'Nonlinear', 'LineWidth', 1.5);
+subplot(2, 3, 3)
+plot(t3, pos3, 'Color', u3_color, 'DisplayName', 'Nonlinear', 'LineWidth', 1.5);
 hold on;
-plot(t2_lin, theta2_lin, 'Color', "#A2142F", 'DisplayName', 'Linear', 'LineWidth', 1.5);
-grid on;
-xlabel('Time [s]');
-ylabel('Pendulum angle [°]');
-ylim([min_theta_lin max_theta_lin]);
-legend('$\theta(t)$', '$\bar{\theta}(t)$', 'Interpreter', 'latex');
-title('Response to 5 N pulse force on the cart');
-
-save_figure('task5_u2_theta_lin.png')
-
-figure;
-plot(t3, pos3, 'Color', "#77AC30", 'DisplayName', 'Nonlinear', 'LineWidth', 1.5);
-hold on;
-plot(t3_lin, pos3_lin, 'Color', "#D95319", 'DisplayName', 'Linear', 'LineWidth', 1.5);
+plot(t3_lin, pos3_lin, 'Color', u3_color_accent, 'DisplayName', 'Linear', 'LineWidth', 1.5);
 grid on;
 xlabel('Time [s]');
 ylabel('Cart position [m]');
 ylim([0 max_pos_lin]);
 legend('$x(t)$', '$\bar{x}(t)$', 'Interpreter', 'latex');
-title('Response to 25 N pulse force on the cart');
+title('$x(t)$ linear response to $u_3(t)$', 'Interpreter', 'latex');
 
-save_figure('task5_u3_pos_lin.png')
-
-figure;
-plot(t3, theta3, 'Color', "#4DBEEE", 'DisplayName', 'Nonlinear', 'LineWidth', 1.5);
+subplot(2, 3, 4)
+plot(t1, theta1, 'Color', u1_color, 'DisplayName', 'Nonlinear', 'LineWidth', 1.5);
 hold on;
-plot(t3_lin, theta3_lin, 'Color', "#A2142F", 'DisplayName', 'Linear', 'LineWidth', 1.5);
+plot(t1_lin, theta1_lin, 'Color', u1_color_accent, 'DisplayName', 'Linear', 'LineWidth', 1.5);
 grid on;
 xlabel('Time [s]');
 ylabel('Pendulum angle [°]');
 ylim([min_theta_lin max_theta_lin]);
 legend('$\theta(t)$', '$\bar{\theta}(t)$', 'Interpreter', 'latex');
-title('Response to 25 N pulse force on the cart');
+title('$\theta(t)$ linear response to $u_1(t)$', 'Interpreter', 'latex');
 
-save_figure('task5_u3_theta_lin.png')
+subplot(2, 3, 5)
+plot(t2, theta2, 'Color', u2_color, 'DisplayName', 'Nonlinear', 'LineWidth', 1.5);
+hold on;
+plot(t2_lin, theta2_lin, 'Color', u2_color_accent, 'DisplayName', 'Linear', 'LineWidth', 1.5);
+grid on;
+xlabel('Time [s]');
+ylabel('Pendulum angle [°]');
+ylim([min_theta_lin max_theta_lin]);
+legend('$\theta(t)$', '$\bar{\theta}(t)$', 'Interpreter', 'latex');
+title('$\theta(t)$ linear response to $u_2(t)$', 'Interpreter', 'latex');
+
+subplot(2, 3, 6)
+plot(t3, theta3, 'Color', u3_color, 'DisplayName', 'Nonlinear', 'LineWidth', 1.5);
+hold on;
+plot(t3_lin, theta3_lin, 'Color', u3_color_accent, 'DisplayName', 'Linear', 'LineWidth', 1.5);
+grid on;
+xlabel('Time [s]');
+ylabel('Pendulum angle [°]');
+ylim([min_theta_lin max_theta_lin]);
+legend('$\theta(t)$', '$\bar{\theta}(t)$', 'Interpreter', 'latex');
+title('$\theta(t)$ linear response to $u_3(t)$', 'Interpreter', 'latex');
+
+save_figure('task5_composite_lin.png', true)
 
 %%  Task 1.6 – Comparison of the nonlinear and linear response
 % Repeat Task 1.5 using Simulink models
