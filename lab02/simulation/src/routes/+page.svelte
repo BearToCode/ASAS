@@ -12,6 +12,9 @@
 	const PendulumWidth = 5;
 	const MassWidth = 20;
 
+	const ScaleFactor = 100;
+	const DisturbForce = 200;
+
 	let windowWidth = $state(0);
 	let displayPosition = $state(0);
 
@@ -32,23 +35,34 @@
 	let x0 = [0, 0, 0, 0];
 	let x = $state(x0);
 
-	const Kp = 86.63;
-	const Kd = 6.75;
+	const Kp_theta = 606;
+	const Kd_theta = 47;
+	const Kp_x = -79;
+	const Kd_x = -46;
 
-	const controller = pd(Kp, Kd);
+	const controller_theta = pd(Kp_theta, Kd_theta);
+	const controller_x = pd(Kp_x, Kd_x);
+
+	const controller = (x: number[], thetaRef: number, xRef: number) => {
+		const u_theta = controller_theta(thetaRef - x[2], -x[3]);
+		const u_x = controller_x(xRef - x[0], -x[1]);
+		return u_theta + u_x;
+	};
+
 	const disturb = (t: number) => {
 		if (leftPressed) {
-			return -100;
+			return -DisturbForce;
 		} else if (rightPressed) {
-			return 100;
+			return DisturbForce;
 		}
 		return 0;
 	};
 
 	const thetaRef = 0;
+	const xRef = 0;
 
 	const odefun = (t: number, x: number[]) =>
-		f(x, controllerActive ? controller(thetaRef - x[2], -x[3]) : 0, disturb(t));
+		f(x, controllerActive ? controller(x, thetaRef, xRef) : 0, disturb(t));
 	const integrator = rk4(odefun, x0);
 
 	const sketch: Sketch = (p5) => {
@@ -71,7 +85,7 @@
 				return ((n % m) + m) % m;
 			}
 
-			displayPosition = mod(x[0] + p5.width / 2, p5.width) - p5.width / 2;
+			displayPosition = mod(x[0] * ScaleFactor + p5.width / 2, p5.width) - p5.width / 2;
 
 			p5.clear();
 			p5.translate(p5.width / 2, p5.height / 2);
