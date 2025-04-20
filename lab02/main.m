@@ -159,6 +159,19 @@ pzmap(G_theta);
 title('Pole-Zero Map of the Linearized System - $\theta$', 'Interpreter', 'latex');
 save_figure('task4_pzmap_theta.png')
 
+Co=ctrb(linear_sys);
+if det(Co)==0
+    disp("The system is not controllable")
+end
+Ob_x=obsv(linear_sys.A,linear_sys.C(1,:));
+if det(Ob_x)==0
+    disp("x is not comp. observable")
+end
+Ob_t=obsv(linear_sys.A,linear_sys.C(2,:));
+if det(Ob_t)==0
+    disp("theta is not comp. observable")
+end
+
 db = @(x) 20 * log10(x);
 
 w = logspace(-3, 2, 1000); % frequency range for Bode plot
