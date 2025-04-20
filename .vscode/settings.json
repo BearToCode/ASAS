@@ -30,6 +30,7 @@
     "linspace",
     "logspace",
     "meshgrid",
+    "movmean",
     "numden",
     "odefun",
     "Optim",

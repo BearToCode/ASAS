@@ -1,8 +1,8 @@
 function save_figure(filename)
     % SAVE_FIGURE Save the figure to a file with a specific filename.
 
-    if ~exist('dist', 'dir')
-        mkdir('dist')
+    if ~exist('./dist', 'dir')
+        mkdir('./dist')
     end
 
     fig = gcf;

@@ -1,6 +1,7 @@
 clc; clear;
 
 addpath(genpath('.'));
+addpath(genpath('../lib'));
 
 params.M = 3; % [kg]
 params.m = 0.1; % [kg]

@@ -1,6 +1,7 @@
 clc; clear;
 
 addpath(genpath('.'));
+addpath(genpath('../lib'));
 
 params.density = 1000; % [kg/m^3]
 params.h = 1; % [m]
@@ -35,6 +36,8 @@ title('Impulse response of the undamped system, n = 10');
 xlabel('Time [s]');
 ylabel('$F_x$ [N]', 'Interpreter', 'latex');
 
+save_figure('task1_undamped.png')
+
 %% Task 2b: Include in the previous EOM and related state-space
 % model a modal damping ratio 𝛾n for each component
 % of the multi-pendulum system.
@@ -47,6 +50,8 @@ grid on;
 title('Impulse response of the damped system, n = 10');
 xlabel('Time [s]');
 ylabel('$F_x$ [N]', 'Interpreter', 'latex');
+
+save_figure('task1_damped.png')
 
 %% Task 3: Using a reduced-order damped mechanical model
 % including only the first fundamental slosh mode (first
@@ -101,7 +106,7 @@ odefun = @(t, x) sys_damped.A * x;
 [t_numerical, x_numerical] = ode45(odefun, [0, t_f], x0);
 y_numerical = sys_damped.C * x_numerical';
 
-impulse_figure = figure;
+figure;
 plot(t_intervals, y_impulse, 'DisplayName', 'Impulse');
 hold on;
 plot(t_intervals, y_analitycal, 'DisplayName', 'Analitycal');
@@ -113,6 +118,34 @@ xlabel('Time [s]');
 ylabel('$F_x$ [N]', 'Interpreter', 'latex');
 hold off;
 legend;
+
+save_figure('task3_impulse.png')
+
+% Compare using ode23, ode45 and ode89
+t_numerical_45 = t_numerical;
+y_numerical_45 = y_numerical;
+[t_numerical_23, x_numerical_23] = ode23(odefun, [0, t_f], x0);
+y_numerical_23 = sys_damped.C * x_numerical_23';
+[t_numerical_89, x_numerical_89] = ode89(odefun, [0, t_f], x0);
+y_numerical_89 = sys_damped.C * x_numerical_89';
+
+ode23_errors = arrayfun(@(i) abs(y_numerical_23(i) - f_modal(t_numerical_23(i))), 1:length(t_numerical_23));
+ode45_errors = arrayfun(@(i) abs(y_numerical_45(i) - f_modal(t_numerical_45(i))), 1:length(t_numerical_45));
+ode89_errors = arrayfun(@(i) abs(y_numerical_89(i) - f_modal(t_numerical_89(i))), 1:length(t_numerical_89));
+
+figure;
+plot(t_numerical_23, ode23_errors, 'DisplayName', 'ode23', 'LineWidth', 1.5);
+hold on;
+plot(t_numerical_45, ode45_errors, 'DisplayName', 'ode45', 'LineWidth', 1.5);
+plot(t_numerical_89, ode89_errors, 'DisplayName', 'ode89', 'LineWidth', 1.5);
+grid on;
+xlabel('Time [s]');
+ylabel('Error [N]');
+title('Error of the numerical integration methods');
+legend('Location', 'best');
+hold off;
+
+save_figure('task3_errors.png')
 
 %% Task 4: Find the required order n of the damped multi-
 % pendulum model to achieve a reasonable desired
@@ -151,7 +184,7 @@ for i = 1:length(n_options)
     max_errors(i) = max(abs(y(i, :) - y_reference)) / max_y;
 end
 
-error_figure = figure;
+figure;
 plot(n_options(1:end), 100 .* avg_errors, 'DisplayName', 'Average error');
 hold on;
 plot(n_options(1:end), 100 .* max_errors, 'DisplayName', 'Max error');
@@ -166,7 +199,9 @@ title('Relative error with respect to the maximum value of the reference model')
 legend('Location', 'best');
 hold off;
 
-error_multiple_figure = figure;
+save_figure('task4_error.png')
+
+figure;
 plot(t_intervals, y(1, :), 'DisplayName', 'n = 1');
 hold on;
 
@@ -180,6 +215,8 @@ ylabel('Impulse response [N]');
 title('Impulse response of the damped system for different orders n');
 legend('Location', 'best');
 hold off;
+
+save_figure('task4_impulse.png')
 
 %% Task 5: Using the damped multi-pendulum model of order n
 % obtained from the analysis of Task 4, compute the
@@ -206,7 +243,7 @@ t_step_analitycal = 0:0.01:t_f;
 C_inv_A = sys_damped.C / sys_damped.A;
 
 f_analitycal = @(t) C_inv_A * (expm(sys_damped.A * t) - eye(size(sys_damped.A))) * sys_damped.B + sys_damped.D * u(t);
-y_step_analitycal = arrayfun(f_analitycal, t_step_analitycal);
+y_step_analytical = arrayfun(f_analitycal, t_step_analitycal);
 
 % 3: numerical integration technique
 x0 = zeros(2 * n, 1); % Initial condition for the state vector
@@ -218,35 +255,26 @@ y_numerical_45 = sys_damped.C * x_numerical_45' + sys_damped.D * u(t_numerical_4
 [t_numerical_23, x_numerical_23] = ode23(odefun, [0, t_f], x0);
 y_numerical_23 = sys_damped.C * x_numerical_23' + sys_damped.D * u(t_numerical_23);
 
-% QUESTA FIGURE è di troppo (c'è uguale anche sotto!!!)
-% figure
-% plot(t_numerical_45, y_numerical_45, 'DisplayName', 'Step - ode45');
-% hold on;
-% plot(t_numerical_23, y_numerical_23, 'DisplayName', 'Step - ode23');
-% plot(t_step_analitycal, y_step_analitycal, 'DisplayName', 'Step - Analytical');
-% legend('Location', 'best');
-% grid on;
-% xlabel('Time [s]');
-% ylabel('Step response [N]');
-
 % Extra: add response with "frozen liquid"
-t_frozen = 0:0.01:t_f;
+t_frozen = 0:0.1:t_f;
 total_mass = -sum(pendulums.m) - pendulums.m0;
 y_frozen = arrayfun(@(t) total_mass * u(t), t_frozen);
 
-step_response_figure = figure;
-plot(t_step, y_step, 'DisplayName', 'Step');
+figure;
+plot(t_step, y_step, 'DisplayName', 'Step', 'LineWidth', 1.5);
 hold on;
-plot(t_step_analitycal, y_step_analitycal, 'DisplayName', 'Analitycal');
-plot(t_numerical_23, y_numerical_23, 'DisplayName', 'Numerical: ode23');
-plot(t_numerical_45, y_numerical_45, 'DisplayName', 'Numerical: ode45');
-plot(t_frozen, y_frozen, 'DisplayName', 'Frozen liquid');
+plot(t_step_analitycal, y_step_analytical, 'DisplayName', 'Analitycal', 'LineWidth', 1.5);
+plot(t_numerical_23, y_numerical_23, 'DisplayName', 'Numerical: ode23', 'LineWidth', 1.5);
+plot(t_numerical_45, y_numerical_45, 'DisplayName', 'Numerical: ode45', 'LineWidth', 1.5);
+plot(t_frozen, y_frozen, 'DisplayName', 'Frozen liquid', 'LineWidth', 1.5);
 grid on;
 xlabel('Time [s]');
 ylabel('Step response [N]');
 title('Step response of the damped system for n = 5');
 legend('Location', 'best');
 hold off;
+
+save_figure('task5_step.png')
 
 %% Step 6: Derive the frequency response function (FRF)
 % corresponding to a damped n–order multi-
@@ -271,10 +299,10 @@ slosh_phase_values = arrayfun(slosh_phase, omega);
 frozen_amplitude_values = arrayfun(frozen_amplitude, omega);
 frozen_phase_values = arrayfun(frozen_phase, omega);
 
-amplitude_figure = figure;
-semilogx(omega, 20 * log10(slosh_amplitude_values), 'DisplayName', 'Amplitude');
+figure;
+semilogx(omega, 20 * log10(slosh_amplitude_values), 'DisplayName', 'Amplitude', 'LineWidth', 1.5);
 hold on;
-semilogx(omega, 20 * log10(frozen_amplitude_values), 'DisplayName', 'Frozen liquid');
+semilogx(omega, 20 * log10(frozen_amplitude_values), 'DisplayName', 'Frozen liquid', 'LineWidth', 1.5);
 hold off;
 grid on;
 xlabel('Frequency [rad/s]');
@@ -282,10 +310,12 @@ ylabel('Magnitude [dB]');
 title('Frequency response of the damped system, n = 5');
 legend('Location', 'best');
 
-phase_figure = figure;
-semilogx(omega, slosh_phase_values * 180 / pi, 'DisplayName', 'Phase');
+save_figure('task6_amplitude.png')
+
+figure;
+semilogx(omega, slosh_phase_values * 180 / pi, 'DisplayName', 'Phase', 'LineWidth', 1.5);
 hold on;
-semilogx(omega, frozen_phase_values * 180 / pi, 'DisplayName', 'Frozen liquid');
+semilogx(omega, frozen_phase_values * 180 / pi, 'DisplayName', 'Frozen liquid', 'LineWidth', 1.5);
 hold off;
 grid on;
 xlabel('Frequency [rad/s]');
@@ -293,43 +323,136 @@ ylabel('Phase [degrees]');
 title('Frequency response of the damped system, n = 5');
 legend('Location', 'best');
 
+save_figure('task6_phase.png')
+
 %% Task 7: Step Response using SIMULINK
 
 n = 5; % Order of the model
 pendulums = sloshing_pendulums(params, n);
 sys_damped = sloshing_damped(pendulums, params, damping);
 
-eig(sys_damped.A)
-
+x0 = zeros(2 * n, 1); % Initial condition for the state vector
 u = @(t) 1;
+
+C_inv_A = sys_damped.C / sys_damped.A;
 f_analitycal = @(t) C_inv_A * (expm(sys_damped.A * t) - eye(size(sys_damped.A))) * sys_damped.B + sys_damped.D * u(t);
 
-sim_step = sim('Step_Response.slx');
+sim_step_ode23 = sim('step_response_ode23.slx');
+sim_step_ode45 = sim('step_response_ode45.slx');
 
-u = sim_step.u; % Forcing term
-F = sim_step.F; % Force history
+u_ode23 = sim_step_ode23.u; % Forcing term
+u_ode45 = sim_step_ode45.u;
 
-y_step_analitycal = arrayfun(f_analitycal, F.Time);
+F_ode23 = sim_step_ode23.F; % Timeseries
+F_ode45 = sim_step_ode45.F;
 
-plot(F.Time, y_step_analitycal, 'DisplayName', 'Analitycal');
+t_ode23 = F_ode23.Time; % Time vector
+t_ode45 = F_ode45.Time;
+
+y_ode23 = F_ode23.Data; % Output of the system
+y_ode45 = F_ode45.Data;
+
+dt_ode23 = diff(t_ode23); % Time intervals
+dt_ode45 = diff(t_ode45);
+
+dt_ode23_mov50 = movmean(dt_ode23, 50); % 50-point moving average
+dt_ode45_mov50 = movmean(dt_ode45, 50);
+
+ode23_error = arrayfun(@(i) abs(y_ode23(i) - f_analitycal(t_ode23(i))), 1:length(t_ode23));
+ode45_error = arrayfun(@(i) abs(y_ode45(i) - f_analitycal(t_ode45(i))), 1:length(t_ode45));
+
+ode23_error_mov50 = movmean(ode23_error, 50); % 50-point moving average
+ode45_error_mov50 = movmean(ode45_error, 50); %
+
+t_f = F_ode23.Time(end); % Final time for the step response
+[y_step, t_step] = step(sys_damped, t_f); % Simulink step response
+
+std_color = '#292f36';
+ode23_color = '#20639b';
+ode23_color_accent = '#3caea3';
+ode45_color = '#fc915e';
+ode45_color_accent = '#d53e4f';
+
+% ode23 solution compared to the analytical solution
+figure;
+plot(t_ode23, y_ode23, 'DisplayName', 'Numerical: ode23', 'LineWidth', 1.5, 'Color', std_color);
 hold on;
-plot(F, ".")
-% [y_step, t_step] = step(sys_damped, 100);
-% plot(t_step, y_step)
-ylabel("Force [N]")
-xlabel("Time [s]")
-legend("Analytical Solution", "Numerical Solution ode-23")
-title("Simulink Step Response (n = 5)")
+plot(t_step', y_step, 'DisplayName', 'Step', 'LineWidth', 1.5, 'Color', ode23_color);
+grid on;
+xlabel('Time [s]');
+ylabel('Step response [N]');
+title('Step response of the damped system for n = 5 using ode23');
+legend('Location', 'best');
+hold off;
 
-figure
-subplot(1,2,1)
-plot(F.Time, abs(y_step_analitycal - F.Data) / abs(y_step_analitycal))
-xlabel("Time [s]")
-ylabel("Normalized error relative to the analytical solution")
-title("Error of numerical integration")
+save_figure('task7_step_ode23.png')
 
-subplot(1,2,2)
-plot(F.Time(2:end) - F.Time(1:end - 1))
-xlabel("Timestep")
-ylabel("Timestep duration [s]")
-title("Length of time-intervals ode-23")
+% ode45 solution compared to the analytical solution
+figure;
+plot(t_ode45, y_ode45, 'DisplayName', 'Numerical: ode45', 'LineWidth', 1.5, 'Color', std_color);
+hold on;
+plot(t_step, y_step, 'DisplayName', 'Step', 'LineWidth', 1.5, 'Color', ode45_color);
+grid on;
+xlabel('Time [s]');
+ylabel('Step response [N]');
+title('Step response of the damped system for n = 5 using ode45');
+legend('Location', 'best');
+hold off;
+
+save_figure('task7_step_ode45.png')
+
+% ode23 time intervals
+figure;
+plot(dt_ode23, 'DisplayName', 'Time intervals', 'LineWidth', 1.5, 'Color', ode23_color);
+hold on;
+plot(dt_ode23_mov50, 'DisplayName', '50-point moving average', 'LineWidth', 1.5, 'Color', ode23_color_accent);
+grid on;
+xlabel('Index');
+ylabel('Time interval [s]');
+title('Time intervals of the ode23 solver');
+legend('Location', 'best');
+hold off;
+
+save_figure('task7_time_intervals_ode23.png')
+
+% ode45 time intervals
+figure;
+plot(dt_ode45, 'DisplayName', 'Time intervals', 'LineWidth', 1.5, 'Color', ode45_color);
+hold on;
+plot(dt_ode45_mov50, 'DisplayName', '50-point moving average', 'LineWidth', 1.5, 'Color', ode45_color_accent);
+grid on;
+xlabel('Index');
+ylabel('Time interval [s]');
+title('Time intervals of the ode45 solver');
+legend('Location', 'best');
+hold off;
+
+save_figure('task7_time_intervals_ode45.png')
+
+% ode23 error compared to the analytical solution
+figure;
+plot(t_ode23, ode23_error, 'DisplayName', 'Error', 'LineWidth', 1.5, 'Color', ode23_color);
+hold on;
+plot(t_ode23, ode23_error_mov50, 'DisplayName', '50-point moving average', 'LineWidth', 1.5, 'Color', ode23_color_accent);
+grid on;
+xlabel('Time [s]');
+ylabel('Error [N]');
+title('Error of the numerical integration method ode23');
+legend('Location', 'best');
+hold off;
+
+save_figure('task7_error_ode23.png')
+
+% ode45 error compared to the analytical solution
+figure;
+plot(t_ode45, ode45_error, 'DisplayName', 'Error', 'LineWidth', 1.5, 'Color', ode45_color);
+hold on;
+plot(t_ode45, ode45_error_mov50, 'DisplayName', '50-point moving average', 'LineWidth', 1.5, 'Color', ode45_color_accent);
+grid on;
+xlabel('Time [s]');
+ylabel('Error [N]');
+title('Error of the numerical integration method ode45');
+legend('Location', 'best');
+hold off;
+
+save_figure('task7_error_ode45.png')
