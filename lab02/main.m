@@ -159,16 +159,21 @@ pzmap(G_theta);
 title('Pole-Zero Map of the Linearized System - $\theta$', 'Interpreter', 'latex');
 save_figure('task4_pzmap_theta.png')
 
-Co=ctrb(linear_sys);
-if det(Co)==0
+Co = ctrb(linear_sys);
+
+if det(Co) == 0
     disp("The system is not controllable")
 end
-Ob_x=obsv(linear_sys.A,linear_sys.C(1,:));
-if det(Ob_x)==0
+
+Ob_x = obsv(linear_sys.A, linear_sys.C(1, :));
+
+if det(Ob_x) == 0
     disp("x is not comp. observable")
 end
-Ob_t=obsv(linear_sys.A,linear_sys.C(2,:));
-if det(Ob_t)==0
+
+Ob_t = obsv(linear_sys.A, linear_sys.C(2, :));
+
+if det(Ob_t) == 0
     disp("theta is not comp. observable")
 end
 
@@ -189,9 +194,9 @@ phase_real_theta = squeeze(phase_real_theta);
 
 figure;
 subplot(2, 1, 1);
-semilogx(w, db(mag_asymp_x), 'DisplayName', 'Asymptotic');
+semilogx(w, db(mag_asymp_x), 'DisplayName', 'Asymptotic', 'LineWidth', 1.5);
 hold on;
-semilogx(w, db(mag_real_x), 'DisplayName', 'Real');
+semilogx(w, db(mag_real_x), 'DisplayName', 'Real', 'LineWidth', 1.5);
 grid on;
 xlabel('Frequency [rad/s]');
 ylabel('Magnitude [dB]');
@@ -199,9 +204,9 @@ legend('$|\bar{G_x}(j\omega)|$', '$|G_x(j\omega)|$', 'Interpreter', 'latex', 'Lo
 title('Bode Diagram of the Linearized System - $G_x$', 'Interpreter', 'latex');
 
 subplot(2, 1, 2);
-semilogx(w, phase_asymp_x, 'DisplayName', 'Asymptotic');
+semilogx(w, phase_asymp_x, 'DisplayName', 'Asymptotic', 'LineWidth', 1.5);
 hold on;
-semilogx(w, phase_real_x, 'DisplayName', 'Real');
+semilogx(w, phase_real_x, 'DisplayName', 'Real', 'LineWidth', 1.5);
 grid on;
 xlabel('Frequency [rad/s]');
 ylabel('Phase [°]');
@@ -212,9 +217,9 @@ save_figure('task4_bode_x.png')
 
 figure;
 subplot(2, 1, 1);
-semilogx(w, db(mag_asymp_theta), 'DisplayName', 'Asymptotic');
+semilogx(w, db(mag_asymp_theta), 'DisplayName', 'Asymptotic', 'LineWidth', 1.5);
 hold on;
-semilogx(w, db(mag_real_theta), 'DisplayName', 'Real');
+semilogx(w, db(mag_real_theta), 'DisplayName', 'Real', 'LineWidth', 1.5);
 grid on;
 xlabel('Frequency [rad/s]');
 ylabel('Magnitude [dB]');
@@ -222,9 +227,9 @@ legend('$|\bar{G_\theta}(j\omega)|$', '$|G_\theta(j\omega)|$', 'Interpreter', 'l
 title('Bode Diagram of the Linearized System - $G_\theta$', 'Interpreter', 'latex');
 
 subplot(2, 1, 2);
-semilogx(w, phase_asymp_theta, 'DisplayName', 'Asymptotic');
+semilogx(w, phase_asymp_theta, 'DisplayName', 'Asymptotic', 'LineWidth', 1.5);
 hold on;
-semilogx(w, phase_real_theta, 'DisplayName', 'Real');
+semilogx(w, phase_real_theta, 'DisplayName', 'Real', 'LineWidth', 1.5);
 grid on;
 xlabel('Frequency [rad/s]');
 ylabel('Phase [°]');
