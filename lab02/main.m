@@ -599,6 +599,7 @@ ylabel('Pendulum Angle [°]');
 ylim([-max_theta max_theta]);
 legend('$F_c(t)$', '$\theta(t)$', 'Interpreter', 'latex', 'Location', 'Best');
 title('Control Force and Pendulum Angle - PD Control', 'Interpreter', 'latex');
+% MANCA IL PLOT DI X!
 
 save_figure('task2_control_theta.png')
 
@@ -608,12 +609,31 @@ sim_control = sim('nonlinear_control.slx');
 
 d_sim = sim_control.d; % Disturbance
 x_sim = sim_control.x; % Output history
+u_sim = sim_control.u; % Control force
+
 
 figure
+plot(x_sim.time, x_sim.signals.values(:, 1));
+xlabel("Time [s]");
+ylabel('Cart position [m]');
 
-plot(x_sim.time, x_sim.signals.values(:, 3) * 180 / pi)
-xlabel("Time [s]")
-ylabel('Pendulum Angle [°]')
+max_theta_sim = max(abs(x_sim.signals.values(:,3)*180/pi));
+max_control_sim = max(abs(u_sim.signals.values));
+
+figure;
+plot(u_sim.time, u_sim.signals.values,'DisplayName', 'Control Force');
+hold on;
+grid on;
+xlabel('Time [s]');
+ylabel('Control Force [N]');
+ylim([-max_control_sim max_control_sim]);
+yyaxis right;
+plot(x_sim.time,  x_sim.signals.values(:, 3) * 180 / pi, 'DisplayName', 'Pendulum Angle');
+ylabel('Pendulum Angle [°]');
+ylim([-max_theta_sim max_theta_sim]);
+legend('$F_c(t)$', '$\theta(t)$', 'Interpreter', 'latex', 'Location', 'Best');
+title('Control Force and Pendulum Angle - PD Control', 'Interpreter', 'latex');
+
 
 %% Task 2.5 – Partial and full state feedback control
 % A. Show that the PD controller designed in Task 2.4 corresponds to a partial state feedback control, write
