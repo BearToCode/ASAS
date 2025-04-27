@@ -279,14 +279,15 @@ linear_sys = ipend_linear(params);
 [G_x, G_theta] = ipend_tf(params);
 
 figure;
+subplot(1, 2, 1);
 pzmap(G_x);
 title('Pole-Zero Map of the Linearized System - $x$', 'Interpreter', 'latex');
-save_figure('task4_pzmap_x.png')
 
-figure;
+subplot(1, 2, 2);
 pzmap(G_theta);
 title('Pole-Zero Map of the Linearized System - $\theta$', 'Interpreter', 'latex');
-save_figure('task4_pzmap_theta.png')
+
+save_figure('task4_pzmap_composite.png', true)
 
 Co = ctrb(linear_sys);
 
@@ -663,7 +664,7 @@ title('Real Part of Roots of the Closed-Loop System', 'Interpreter', 'latex');
 view(235, 45);
 save_figure('task2_roots.png')
 
-contourf(Kp_x, Kd_x, z, 20);
+contourf(Kp_x, Kd_x, z, 'ShowText', 'on');
 colorbar;
 xlabel('Kp_x');
 ylabel('Kd_x');
