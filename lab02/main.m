@@ -128,7 +128,7 @@ ylim([min_theta max_theta]);
 legend('$\theta(t)$', 'Interpreter', 'latex');
 title('$\theta(t)$ response to $u_3(t)$', 'Interpreter', 'latex');
 
-save_figure('task1_composite.png', true)
+save_figure('task1_composite.png', keep_title = true)
 
 % Study the numerical performance of the integration method
 t1_ode45 = t1; t2_ode45 = t2; t3_ode45 = t3;
@@ -259,7 +259,7 @@ ylim([0 max_theta_error]);
 legend('Error (ode45)', 'Location', 'Best');
 title('$\theta(t)$ error for $u_3(t)$', 'Interpreter', 'latex');
 
-save_figure('task1_errors.png', true)
+save_figure('task1_errors.png', keep_title = true)
 
 %% Task 1.3 – Nonlinear response to a force applied on the cart
 % A. Repeat Task 1.2 using a Simulink model based on integral block approach
@@ -287,7 +287,7 @@ subplot(1, 2, 2);
 pzmap(G_theta);
 title('Pole-Zero Map of the Linearized System - $\theta$', 'Interpreter', 'latex');
 
-save_figure('task4_pzmap_composite.png', true)
+save_figure('task4_pzmap_composite.png', keep_title = true, aspect_ratio_multiplier = 1.5)
 
 Co = ctrb(linear_sys);
 
@@ -468,7 +468,7 @@ ylim([min_theta_lin max_theta_lin]);
 legend('$\theta(t)$', '$\bar{\theta}(t)$', 'Interpreter', 'latex');
 title('$\theta(t)$ linear response to $u_3(t)$', 'Interpreter', 'latex');
 
-save_figure('task5_composite_lin.png', true)
+save_figure('task5_composite_lin.png', keep_title = true)
 
 %%  Task 1.6 – Comparison of the nonlinear and linear response
 % Repeat Task 1.5 using Simulink models
@@ -581,14 +581,17 @@ pd_theta = @(x) Kp_theta * x(3) + Kd_theta * x(4); % PD control law
 odefun = @(t, x) f(x, pd_theta(r(t) - x), d(t));
 [t, x] = ode45(odefun, tspan, x0);
 
+pos = x(:, 1);
 theta = x(:, 3) .* 180 / pi;
-control = arrayfun(@(idx) pd_theta(r(t(idx)) - x(idx, :)'), length(t)); % control force
+control = arrayfun(@(idx) pd_theta(r(t(idx)) - x(idx, :)'), 1:length(t)); % control force
 
+max_pos = max(abs(pos));
 max_theta = max(abs(theta));
 max_control = max(abs(control));
 
 figure;
-plot(t, control, 'DisplayName', 'Control Force');
+subplot(2, 1, 1);
+plot(t, control', 'DisplayName', 'Control Force');
 hold on;
 grid on;
 xlabel('Time [s]');
@@ -599,10 +602,25 @@ plot(t, theta, 'DisplayName', 'Pendulum Angle');
 ylabel('Pendulum Angle [°]');
 ylim([-max_theta max_theta]);
 legend('$F_c(t)$', '$\theta(t)$', 'Interpreter', 'latex', 'Location', 'Best');
-title('Control Force and Pendulum Angle - PD Control', 'Interpreter', 'latex');
-% MANCA IL PLOT DI X!
+hold off;
+title('Pendulum Angle - PD Control', 'Interpreter', 'latex');
 
-save_figure('task2_control_theta.png')
+subplot(2, 1, 2);
+plot(t, control', 'DisplayName', 'Control Force');
+hold on;
+grid on;
+xlabel('Time [s]');
+ylabel('Control Force [N]');
+ylim([-max_control max_control]);
+yyaxis right;
+plot(t, pos, 'DisplayName', 'Cart Position');
+ylabel('Cart Position [m]');
+ylim([-max_pos max_pos]);
+legend('$F_c(t)$', '$x(t)$', 'Interpreter', 'latex', 'Location', 'Best');
+hold off;
+title('Cart Position - PD Control', 'Interpreter', 'latex');
+
+save_figure('task2_control_composite.png', keep_title = true)
 
 % D: Simulink
 
@@ -612,29 +630,27 @@ d_sim = sim_control.d; % Disturbance
 x_sim = sim_control.x; % Output history
 u_sim = sim_control.u; % Control force
 
-
 figure
 plot(x_sim.time, x_sim.signals.values(:, 1));
 xlabel("Time [s]");
 ylabel('Cart position [m]');
 
-max_theta_sim = max(abs(x_sim.signals.values(:,3)*180/pi));
+max_theta_sim = max(abs(x_sim.signals.values(:, 3) * 180 / pi));
 max_control_sim = max(abs(u_sim.signals.values));
 
 figure;
-plot(u_sim.time, u_sim.signals.values,'DisplayName', 'Control Force');
+plot(u_sim.time, u_sim.signals.values, 'DisplayName', 'Control Force');
 hold on;
 grid on;
 xlabel('Time [s]');
 ylabel('Control Force [N]');
 ylim([-max_control_sim max_control_sim]);
 yyaxis right;
-plot(x_sim.time,  x_sim.signals.values(:, 3) * 180 / pi, 'DisplayName', 'Pendulum Angle');
+plot(x_sim.time, x_sim.signals.values(:, 3) * 180 / pi, 'DisplayName', 'Pendulum Angle');
 ylabel('Pendulum Angle [°]');
 ylim([-max_theta_sim max_theta_sim]);
 legend('$F_c(t)$', '$\theta(t)$', 'Interpreter', 'latex', 'Location', 'Best');
 title('Control Force and Pendulum Angle - PD Control', 'Interpreter', 'latex');
-
 
 %% Task 2.5 – Partial and full state feedback control
 % A. Show that the PD controller designed in Task 2.4 corresponds to a partial state feedback control, write

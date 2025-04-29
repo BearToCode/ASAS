@@ -375,6 +375,7 @@ ode45_color_accent = '#d53e4f';
 
 % ode23 solution compared to the analytical solution
 figure;
+subplot(1, 2, 1);
 plot(t_ode23, y_ode23, 'DisplayName', 'Numerical: ode23', 'LineWidth', 1.5, 'Color', std_color);
 hold on;
 plot(t_step', y_step, 'DisplayName', 'Step', 'LineWidth', 1.5, 'Color', ode23_color);
@@ -385,10 +386,8 @@ title('Step response of the damped system for n = 5 using ode23');
 legend('Location', 'best');
 hold off;
 
-save_figure('task7_step_ode23.png')
-
 % ode45 solution compared to the analytical solution
-figure;
+subplot(1, 2, 2);
 plot(t_ode45, y_ode45, 'DisplayName', 'Numerical: ode45', 'LineWidth', 1.5, 'Color', std_color);
 hold on;
 plot(t_step, y_step, 'DisplayName', 'Step', 'LineWidth', 1.5, 'Color', ode45_color);
@@ -399,10 +398,11 @@ title('Step response of the damped system for n = 5 using ode45');
 legend('Location', 'best');
 hold off;
 
-save_figure('task7_step_ode45.png')
+save_figure('task7_step_composite.png', keep_title = true, aspect_ratio_multiplier = 1.5)
 
 % ode23 time intervals
 figure;
+subplot(1, 2, 1);
 plot(dt_ode23, 'DisplayName', 'Time intervals', 'LineWidth', 1.5, 'Color', ode23_color);
 hold on;
 plot(dt_ode23_mov50, 'DisplayName', '50-point moving average', 'LineWidth', 1.5, 'Color', ode23_color_accent);
@@ -413,10 +413,8 @@ title('Time intervals of the ode23 solver');
 legend('Location', 'best');
 hold off;
 
-save_figure('task7_time_intervals_ode23.png')
-
 % ode45 time intervals
-figure;
+subplot(1, 2, 2);
 plot(dt_ode45, 'DisplayName', 'Time intervals', 'LineWidth', 1.5, 'Color', ode45_color);
 hold on;
 plot(dt_ode45_mov50, 'DisplayName', '50-point moving average', 'LineWidth', 1.5, 'Color', ode45_color_accent);
@@ -427,10 +425,11 @@ title('Time intervals of the ode45 solver');
 legend('Location', 'best');
 hold off;
 
-save_figure('task7_time_intervals_ode45.png')
+save_figure('task7_time_intervals_composite.png', keep_title = true, aspect_ratio_multiplier = 1.5)
 
 % ode23 error compared to the analytical solution
 figure;
+subplot(1, 2, 1);
 plot(t_ode23, ode23_error, 'DisplayName', 'Error', 'LineWidth', 1.5, 'Color', ode23_color);
 hold on;
 plot(t_ode23, ode23_error_mov50, 'DisplayName', '50-point moving average', 'LineWidth', 1.5, 'Color', ode23_color_accent);
@@ -441,10 +440,8 @@ title('Error of the numerical integration method ode23');
 legend('Location', 'best');
 hold off;
 
-save_figure('task7_error_ode23.png')
-
-% ode45 error compared to the analytical solution
-figure;
+% ode45 error compared to the analytical
+subplot(1, 2, 2);
 plot(t_ode45, ode45_error, 'DisplayName', 'Error', 'LineWidth', 1.5, 'Color', ode45_color);
 hold on;
 plot(t_ode45, ode45_error_mov50, 'DisplayName', '50-point moving average', 'LineWidth', 1.5, 'Color', ode45_color_accent);
@@ -455,4 +452,4 @@ title('Error of the numerical integration method ode45');
 legend('Location', 'best');
 hold off;
 
-save_figure('task7_error_ode45.png')
+save_figure('task7_error_composite.png', keep_title = true, aspect_ratio_multiplier = 1.5)

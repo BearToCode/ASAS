@@ -1,8 +1,9 @@
-function save_figure(filename, keep_title)
+function save_figure(filename, options)
     % SAVE_FIGURE Save the figure to a file with a specific filename.
-
-    if nargin < 2
-        keep_title = false;
+    arguments
+        filename string
+        options.keep_title (1, 1) {mustBeNumericOrLogical} = false
+        options.aspect_ratio_multiplier (1, 1) double = 1
     end
 
     if ~exist('./dist', 'dir')
@@ -11,24 +12,26 @@ function save_figure(filename, keep_title)
 
     fig = gcf;
 
+    starting_pos = fig.Position;
+
+    width = 760;
+    height = 600 / options.aspect_ratio_multiplier;
+
     try
         starting_title = copy(get(gca, 'title'));
-        starting_pos = fig.Position;
 
-        if ~keep_title
+        if ~options.keep_title
             title('');
         end
 
-        fig.Position = [0 0 760 600];
+        fig.Position = [0 0 width height];
         exportgraphics(fig, strcat("dist/", filename));
 
         set(gca, 'title', starting_title);
         fig.Position = starting_pos;
 
     catch
-        starting_pos = fig.Position;
-
-        fig.Position = [0 0 760 600];
+        fig.Position = [0 0 width height];
         exportgraphics(fig, strcat("dist/", filename));
 
         fig.Position = starting_pos;
