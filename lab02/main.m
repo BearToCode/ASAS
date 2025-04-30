@@ -569,6 +569,10 @@ rlocus(G_theta);
 Kp_theta = 606;
 Kd_theta = 47;
 
+
+% Kp_theta = 94;
+% Kd_theta = 15;
+
 % Integration parameters
 x0 = [0; 0; 0; 0];
 r = @(t) x0; % reference input
