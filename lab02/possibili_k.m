@@ -22,5 +22,5 @@ ylabel('$k_P$', 'Interpreter', 'latex')
 hold on
 scatter(kd,kp,'Marker','*');
 scatter(15,94,'Marker','*','MarkerEdgeColor','r');
-legend('not satisfiying','kd=47,kp=606','kd=15,kp=94')
+legend('not satisfiying','kD=47, kP=606','kD=15, kP=94')
 
