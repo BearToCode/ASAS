@@ -8,7 +8,7 @@ M=3;
 m=0.1;
 l=0.75
 %X=Kd, Y=Kp
-[X, Y] = meshgrid(0:500, [0:999]);
+[X, Y] = meshgrid(0:500, 0:999);
 
 peaktime= Y >(1)/(4*M*l).* X.^(2)+(M+m)*g+pi^(2) * M*l; % Peak time condition
 elong = Y < (pi^2+(log(5))^2)/(4*M*l*(log(5))^2)*X.^2+(M+m)*g; % Elongation condition
@@ -17,6 +17,10 @@ both = peaktime & elong; % Intersection of both inequalities
 figure
 colors = zeros(size(X)) + peaktime + elong; % Combine inequalities
 scatter(X(:), Y(:), 3, colors(:), 'filled'); % Plot the region
+xlabel('$k_D$', 'Interpreter', 'latex')
+ylabel('$k_P$', 'Interpreter', 'latex')
 hold on
 scatter(kd,kp,'Marker','*');
+scatter(15,94,'Marker','*','MarkerEdgeColor','r');
+legend('not satisfiying','kD=47, kP=606','kD=15, kP=94')
 
