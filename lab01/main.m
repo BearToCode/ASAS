@@ -382,7 +382,7 @@ plot(t_step', y_step, 'DisplayName', 'Step', 'LineWidth', 1.5, 'Color', ode23_co
 grid on;
 xlabel('Time [s]');
 ylabel('Step response [N]');
-title('Step response of the damped system for n = 5 using ode23');
+title('Step response - \texttt{ode23}', 'Interpreter', 'latex');
 legend('Location', 'best');
 hold off;
 
@@ -394,7 +394,7 @@ plot(t_step, y_step, 'DisplayName', 'Step', 'LineWidth', 1.5, 'Color', ode45_col
 grid on;
 xlabel('Time [s]');
 ylabel('Step response [N]');
-title('Step response of the damped system for n = 5 using ode45');
+title('Step response - \texttt{ode45}', 'Interpreter', 'latex');
 legend('Location', 'best');
 hold off;
 
@@ -409,7 +409,7 @@ plot(dt_ode23_mov50, 'DisplayName', '50-point moving average', 'LineWidth', 1.5,
 grid on;
 xlabel('Index');
 ylabel('Time interval [s]');
-title('Time intervals of the ode23 solver');
+title('Time intervals - \texttt{ode23}', 'Interpreter', 'latex');
 legend('Location', 'best');
 hold off;
 
@@ -421,7 +421,7 @@ plot(dt_ode45_mov50, 'DisplayName', '50-point moving average', 'LineWidth', 1.5,
 grid on;
 xlabel('Index');
 ylabel('Time interval [s]');
-title('Time intervals of the ode45 solver');
+title('Time intervals - \texttt{ode45}', 'Interpreter', 'latex');
 legend('Location', 'best');
 hold off;
 
@@ -436,7 +436,7 @@ plot(t_ode23, ode23_error_mov50, 'DisplayName', '50-point moving average', 'Line
 grid on;
 xlabel('Time [s]');
 ylabel('Error [N]');
-title('Error of the numerical integration method ode23');
+title('Error - \texttt{ode23}', 'Interpreter', 'latex');
 legend('Location', 'best');
 hold off;
 
@@ -448,7 +448,7 @@ plot(t_ode45, ode45_error_mov50, 'DisplayName', '50-point moving average', 'Line
 grid on;
 xlabel('Time [s]');
 ylabel('Error [N]');
-title('Error of the numerical integration method ode45');
+title('Error - \texttt{ode45}', 'Interpreter', 'latex');
 legend('Location', 'best');
 hold off;
 
