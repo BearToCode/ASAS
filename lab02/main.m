@@ -772,8 +772,6 @@ save_figure('task2_pzmap.png')
 
 rlocus(G_theta);
 
-% TODO: D
-
 %% Task 2.4 – Proportional-Derivative (PD) control for stabilization
 % Let’s consider a proportional-derivative (PD) control:
 % A. By assuming a reference equal to zero (r(s) = 0), draw the block
@@ -794,9 +792,22 @@ rlocus(G_theta);
 % the behavior with respect to the system response.
 % D. Repeat point C. using a Simulink® model.
 
+% Plots a of the closed-loop system with PD control
+max_overshoot = 20; % 20 %
+max_peak_time = 1; % 1 second
+PD_study(params, max_overshoot, max_peak_time);
+% add two points to the plot
+hold on;
+scatter(606, 47, 'filled', 'DisplayName', 'PD Control');
+scatter(94, 15, 'filled', 'DisplayName', 'PD Control');
+legend('Location', 'Best');
+
+save_figure('task2_study.png', keep_title = true)
+
 Kp_theta = 606;
 Kd_theta = 47;
 
+% Alternative version:
 % Kp_theta = 94;
 % Kd_theta = 15;
 
@@ -822,14 +833,14 @@ max_control = max(abs(control));
 
 figure;
 subplot(2, 1, 1);
-plot(t, control', 'DisplayName', 'Control Force');
+plot(t, control', 'DisplayName', 'Control Force', 'LineWidth', 1.5);
 hold on;
 grid on;
 xlabel('Time [s]');
 ylabel('Control Force [N]');
 ylim([-max_control max_control]);
 yyaxis right;
-plot(t, theta, 'DisplayName', 'Pendulum Angle');
+plot(t, theta, 'DisplayName', 'Pendulum Angle', 'LineWidth', 1.5);
 ylabel('Pendulum Angle [°]');
 ylim([-max_theta max_theta]);
 legend('$F_c(t)$', '$\theta(t)$', 'Interpreter', 'latex', 'Location', 'Best');
@@ -837,14 +848,14 @@ hold off;
 title('Pendulum Angle - PD Control', 'Interpreter', 'latex');
 
 subplot(2, 1, 2);
-plot(t, control', 'DisplayName', 'Control Force');
+plot(t, control', 'DisplayName', 'Control Force', 'LineWidth', 1.5);
 hold on;
 grid on;
 xlabel('Time [s]');
 ylabel('Control Force [N]');
 ylim([-max_control max_control]);
 yyaxis right;
-plot(t, pos, 'DisplayName', 'Cart Position');
+plot(t, pos, 'DisplayName', 'Cart Position', 'LineWidth', 1.5);
 ylabel('Cart Position [m]');
 ylim([-max_pos max_pos]);
 legend('$F_c(t)$', '$x(t)$', 'Interpreter', 'latex', 'Location', 'Best');
