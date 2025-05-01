@@ -638,30 +638,93 @@ save_figure('task5_composite_lin.png', keep_title = true)
 %%  Task 1.6 – Comparison of the nonlinear and linear response
 % Repeat Task 1.5 using Simulink models
 
-for k = [1, 5, 25]
+u_gains = [1, 5, 25]; % input gains for the three cases
 
+t = cell(3, 1); pos = cell(3, 1); theta = cell(3, 1);
+
+idx = 1;
+
+for sim_step_gain = u_gains
     sim_pulse = sim('simulink_double_step.slx');
 
-    u = sim_pulse.u; % Forcing term
-    y = sim_pulse.y; % Output history
+    t{idx} = sim_pulse.tout; % time vector
+    pos{idx} = sim_pulse.x; % cart position
+    theta{idx} = sim_pulse.theta; % pendulum angle
 
-    hold on;
-    subplot(1, 3, 1)
-    plot(y.Time, u)
-    xlabel("Time [s]")
-    ylabel("Input [N]")
-    hold on;
-    subplot(1, 3, 2)
-    plot(y.Time, y.Data(:, 1))
-    xlabel("Time [s]")
-    ylabel("x [m]")
-    hold on;
-    subplot(1, 3, 3)
-    plot(y.Time, y.Data(:, 2))
-    xlabel("Time [s]")
-    ylabel("Theta [-]")
-
+    idx = idx + 1;
 end
+
+% Create a 3x2 grid of subplots, comparing the responses of the previous
+% MATLAB results with the Simulink results
+
+figure;
+subplot(2, 3, 1)
+plot(t1, pos1, 'Color', u1_color, 'DisplayName', 'MATLAB (ode45)', 'LineWidth', 1.5);
+hold on;
+plot(t{1}, pos{1}, 'Color', u1_color_accent, 'DisplayName', 'Simulink', 'LineWidth', 1.5);
+grid on;
+xlabel('Time [s]');
+ylabel('Cart position [m]');
+ylim([0 max_pos_lin]);
+legend('$x(t)$', '$\bar{x}(t)$', 'Interpreter', 'latex');
+title('Linearized $x(t)$ response to $u_1(t)$', 'Interpreter', 'latex');
+
+subplot(2, 3, 2)
+plot(t2, pos2, 'Color', u2_color, 'DisplayName', 'MATLAB (ode45)', 'LineWidth', 1.5);
+hold on;
+plot(t{2}, pos{2}, 'Color', u2_color_accent, 'DisplayName', 'Simulink', 'LineWidth', 1.5);
+grid on;
+xlabel('Time [s]');
+ylabel('Cart position [m]');
+ylim([0 max_pos_lin]);
+legend('$x(t)$', '$\bar{x}(t)$', 'Interpreter', 'latex');
+title('Linearized $x(t)$ response to $u_2(t)$', 'Interpreter', 'latex');
+
+subplot(2, 3, 3)
+plot(t3, pos3, 'Color', u3_color, 'DisplayName', 'MATLAB (ode45)', 'LineWidth', 1.5);
+hold on;
+plot(t{3}, pos{3}, 'Color', u3_color_accent, 'DisplayName', 'Simulink', 'LineWidth', 1.5);
+grid on;
+xlabel('Time [s]');
+ylabel('Cart position [m]');
+ylim([0 max_pos_lin]);
+legend('$x(t)$', '$\bar{x}(t)$', 'Interpreter', 'latex');
+title('Linearized $x(t)$ response to $u_3(t)$', 'Interpreter', 'latex');
+
+subplot(2, 3, 4)
+plot(t1, theta1, 'Color', u1_color, 'DisplayName', 'MATLAB (ode45)', 'LineWidth', 1.5);
+hold on;
+plot(t{1}, theta{1}, 'Color', u1_color_accent, 'DisplayName', 'Simulink', 'LineWidth', 1.5);
+grid on;
+xlabel('Time [s]');
+ylabel('Pendulum angle [°]');
+ylim([min_theta_lin max_theta_lin]);
+legend('$\theta(t)$', '$\bar{\theta}(t)$', 'Interpreter', 'latex');
+title('Linearized $\theta(t)$ response to $u_1(t)$', 'Interpreter', 'latex');
+
+subplot(2, 3, 5)
+plot(t2, theta2, 'Color', u2_color, 'DisplayName', 'MATLAB (ode45)', 'LineWidth', 1.5);
+hold on;
+plot(t{2}, theta{2}, 'Color', u2_color_accent, 'DisplayName', 'Simulink', 'LineWidth', 1.5);
+grid on;
+xlabel('Time [s]');
+ylabel('Pendulum angle [°]');
+ylim([min_theta_lin max_theta_lin]);
+legend('$\theta(t)$', '$\bar{\theta}(t)$', 'Interpreter', 'latex');
+title('Linearized $\theta(t)$ response to $u_2(t)$', 'Interpreter', 'latex');
+
+subplot(2, 3, 6)
+plot(t3, theta3, 'Color', u3_color, 'DisplayName', 'MATLAB (ode45)', 'LineWidth', 1.5);
+hold on;
+plot(t{3}, theta{3}, 'Color', u3_color_accent, 'DisplayName', 'Simulink', 'LineWidth', 1.5);
+grid on;
+xlabel('Time [s]');
+ylabel('Pendulum angle [°]');
+ylim([min_theta_lin max_theta_lin]);
+legend('$\theta(t)$', '$\bar{\theta}(t)$', 'Interpreter', 'latex');
+title('Linearized $\theta(t)$ response to $u_3(t)$', 'Interpreter', 'latex');
+
+save_figure('task6_composite_lin.png', keep_title = true)
 
 %% Task 2.1 – Mathematical model
 % A. Derive the nonlinear EOM of the system
