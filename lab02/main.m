@@ -265,7 +265,172 @@ save_figure('task1_errors.png', keep_title = true)
 % A. Repeat Task 1.2 using a Simulink model based on integral block approach
 % B. Repeat Task 1.2 using a Simulink model based on M-function.
 
-% TODO: add plots
+u_gains = [1, 5, 25]; % input gains for the three cases
+t_block = cell(3, 1); t_mfun = cell(3, 1); % time vectors for block and mfun simulations
+pos_block = cell(3, 1); pos_mfun = cell(3, 1); % cart positions for block and mfun simulations
+theta_block = cell(3, 1); theta_mfun = cell(3, 1); % pendulum angles for block and mfun simulations
+
+idx = 1;
+
+for sim_step_gain = u_gains
+    block_sim = sim('nonlinear_block.slx');
+    mfun_sim = sim('nonlinear_mfun.slx');
+
+    t_block{idx} = block_sim.tout';
+    t_mfun{idx} = mfun_sim.tout';
+
+    pos_block{idx} = block_sim.x';
+    pos_mfun{idx} = mfun_sim.x';
+
+    theta_block{idx} = block_sim.theta';
+    theta_mfun{idx} = mfun_sim.theta';
+
+    idx = idx + 1;
+end
+
+% Create a first 3x2 grid of subplots, comparing the responses of the previous
+% MATLAB results with the Simulink results (block approach)
+
+figure;
+subplot(2, 3, 1)
+plot(t1, pos1, 'Color', u1_color, 'DisplayName', 'MATLAB (ode45)', 'LineWidth', 1.5);
+hold on;
+plot(t_block{1}, pos_block{1}, 'Color', u1_color_accent, 'DisplayName', 'Simulink (block)', 'LineWidth', 1.5);
+grid on;
+xlabel('Time [s]');
+ylabel('Cart position [m]');
+ylim([0 max_pos]);
+legend('$x(t)$', '$\bar{x}(t)$', 'Interpreter', 'latex');
+title('$x(t)$ response to $u_1(t)$', 'Interpreter', 'latex');
+
+subplot(2, 3, 2)
+plot(t2, pos2, 'Color', u2_color, 'DisplayName', 'MATLAB (ode45)', 'LineWidth', 1.5);
+hold on;
+plot(t_block{2}, pos_block{2}, 'Color', u2_color_accent, 'DisplayName', 'Simulink (block)', 'LineWidth', 1.5);
+grid on;
+xlabel('Time [s]');
+ylabel('Cart position [m]');
+ylim([0 max_pos]);
+legend('$x(t)$', '$\bar{x}(t)$', 'Interpreter', 'latex');
+title('$x(t)$ response to $u_2(t)$', 'Interpreter', 'latex');
+
+subplot(2, 3, 3)
+plot(t3, pos3, 'Color', u3_color, 'DisplayName', 'MATLAB (ode45)', 'LineWidth', 1.5);
+hold on;
+plot(t_block{3}, pos_block{3}, 'Color', u3_color_accent, 'DisplayName', 'Simulink (block)', 'LineWidth', 1.5);
+grid on;
+xlabel('Time [s]');
+ylabel('Cart position [m]');
+ylim([0 max_pos]);
+legend('$x(t)$', '$\bar{x}(t)$', 'Interpreter', 'latex');
+title('$x(t)$ response to $u_3(t)$', 'Interpreter', 'latex');
+
+subplot(2, 3, 4)
+plot(t1, theta1, 'Color', u1_color, 'DisplayName', 'MATLAB (ode45)', 'LineWidth', 1.5);
+hold on;
+plot(t_block{1}, theta_block{1}, 'Color', u1_color_accent, 'DisplayName', 'Simulink (block)', 'LineWidth', 1.5);
+grid on;
+xlabel('Time [s]');
+ylabel('Pendulum angle [°]');
+ylim([min_theta max_theta]);
+legend('$\theta(t)$', '$\bar{\theta}(t)$', 'Interpreter', 'latex');
+title('$\theta(t)$ response to $u_1(t)$', 'Interpreter', 'latex');
+
+subplot(2, 3, 5)
+plot(t2, theta2, 'Color', u2_color, 'DisplayName', 'MATLAB (ode45)', 'LineWidth', 1.5);
+hold on;
+plot(t_block{2}, theta_block{2}, 'Color', u2_color_accent, 'DisplayName', 'Simulink (block)', 'LineWidth', 1.5);
+grid on;
+xlabel('Time [s]');
+ylabel('Pendulum angle [°]');
+ylim([min_theta max_theta]);
+legend('$\theta(t)$', '$\bar{\theta}(t)$', 'Interpreter', 'latex');
+title('$\theta(t)$ response to $u_2(t)$', 'Interpreter', 'latex');
+
+subplot(2, 3, 6)
+plot(t3, theta3, 'Color', u3_color, 'DisplayName', 'MATLAB (ode45)', 'LineWidth', 1.5);
+hold on;
+plot(t_block{3}, theta_block{3}, 'Color', u3_color_accent, 'DisplayName', 'Simulink (block)', 'LineWidth', 1.5);
+grid on;
+xlabel('Time [s]');
+ylabel('Pendulum angle [°]');
+ylim([min_theta max_theta]);
+legend('$\theta(t)$', '$\bar{\theta}(t)$', 'Interpreter', 'latex');
+title('$\theta(t)$ response to $u_3(t)$', 'Interpreter', 'latex');
+
+save_figure('task3_block.png', keep_title = true)
+
+% Create a second 3x2 grid of subplots, comparing the responses of the previous
+% MATLAB results with the Simulink results (mfun approach)
+
+figure;
+subplot(2, 3, 1)
+plot(t1, pos1, 'Color', u1_color, 'DisplayName', 'MATLAB (ode45)', 'LineWidth', 1.5);
+hold on;
+plot(t_mfun{1}, pos_mfun{1}, 'Color', u1_color_accent, 'DisplayName', 'Simulink (mfun)', 'LineWidth', 1.5);
+grid on;
+xlabel('Time [s]');
+ylabel('Cart position [m]');
+ylim([0 max_pos]);
+legend('$x(t)$', '$\bar{x}(t)$', 'Interpreter', 'latex');
+title('$x(t)$ response to $u_1(t)$', 'Interpreter', 'latex');
+
+subplot(2, 3, 2)
+plot(t2, pos2, 'Color', u2_color, 'DisplayName', 'MATLAB (ode45)', 'LineWidth', 1.5);
+hold on;
+plot(t_mfun{2}, pos_mfun{2}, 'Color', u2_color_accent, 'DisplayName', 'Simulink (mfun)', 'LineWidth', 1.5);
+grid on;
+xlabel('Time [s]');
+ylabel('Cart position [m]');
+ylim([0 max_pos]);
+legend('$x(t)$', '$\bar{x}(t)$', 'Interpreter', 'latex');
+title('$x(t)$ response to $u_2(t)$', 'Interpreter', 'latex');
+
+subplot(2, 3, 3)
+plot(t3, pos3, 'Color', u3_color, 'DisplayName', 'MATLAB (ode45)', 'LineWidth', 1.5);
+hold on;
+plot(t_mfun{3}, pos_mfun{3}, 'Color', u3_color_accent, 'DisplayName', 'Simulink (mfun)', 'LineWidth', 1.5);
+grid on;
+xlabel('Time [s]');
+ylabel('Cart position [m]');
+ylim([0 max_pos]);
+legend('$x(t)$', '$\bar{x}(t)$', 'Interpreter', 'latex');
+title('$x(t)$ response to $u_3(t)$', 'Interpreter', 'latex');
+
+subplot(2, 3, 4)
+plot(t1, theta1, 'Color', u1_color, 'DisplayName', 'MATLAB (ode45)', 'LineWidth', 1.5);
+hold on;
+plot(t_mfun{1}, theta_mfun{1}, 'Color', u1_color_accent, 'DisplayName', 'Simulink (mfun)', 'LineWidth', 1.5);
+grid on;
+xlabel('Time [s]');
+ylabel('Pendulum angle [°]');
+ylim([min_theta max_theta]);
+legend('$\theta(t)$', '$\bar{\theta}(t)$', 'Interpreter', 'latex');
+title('$\theta(t)$ response to $u_1(t)$', 'Interpreter', 'latex');
+
+subplot(2, 3, 5)
+plot(t2, theta2, 'Color', u2_color, 'DisplayName', 'MATLAB (ode45)', 'LineWidth', 1.5);
+hold on;
+plot(t_mfun{2}, theta_mfun{2}, 'Color', u2_color_accent, 'DisplayName', 'Simulink (mfun)', 'LineWidth', 1.5);
+grid on;
+xlabel('Time [s]');
+ylabel('Pendulum angle [°]');
+ylim([min_theta max_theta]);
+legend('$\theta(t)$', '$\bar{\theta}(t)$', 'Interpreter', 'latex');
+title('$\theta(t)$ response to $u_2(t)$', 'Interpreter', 'latex');
+
+subplot(2, 3, 6)
+plot(t3, theta3, 'Color', u3_color, 'DisplayName', 'MATLAB (ode45)', 'LineWidth', 1.5);
+hold on;
+plot(t_mfun{3}, theta_mfun{3}, 'Color', u3_color_accent, 'DisplayName', 'Simulink (mfun)', 'LineWidth', 1.5);
+grid on;
+xlabel('Time [s]');
+ylabel('Pendulum angle [°]');
+ylim([min_theta max_theta]);
+legend('$\theta(t)$', '$\bar{\theta}(t)$', 'Interpreter', 'latex');
+title('$\theta(t)$ response to $u_3(t)$', 'Interpreter', 'latex');
+
+save_figure('task3_mfun.png', keep_title = true)
 
 %% Task 1.4 –Analysis of the linearized system
 % A. Derive the mathematical expression and numerical values of the
@@ -568,7 +733,6 @@ rlocus(G_theta);
 
 Kp_theta = 606;
 Kd_theta = 47;
-
 
 % Kp_theta = 94;
 % Kd_theta = 15;
