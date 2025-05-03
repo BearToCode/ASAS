@@ -1,5 +1,5 @@
 function PD_study(params, max_overshoot, max_peak_time)
-    % PD_STUDY Study the performance of a PI controller for the inverted pendulum system.
+    % PD_STUDY Study the performance of a PD controller for the inverted pendulum system.
     %
     % PD_study(params, max_overshoot, max_peak_time)
     %
