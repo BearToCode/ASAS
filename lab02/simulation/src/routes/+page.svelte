@@ -14,6 +14,7 @@
 
 	const ScaleFactor = 100;
 	const DisturbForce = 200;
+	const MaxControl = 1000;
 
 	let windowWidth = $state(0);
 	let displayPosition = $state(0);
@@ -46,7 +47,15 @@
 	const controller = (x: number[], thetaRef: number, xRef: number) => {
 		const u_theta = controller_theta(thetaRef - x[2], -x[3]);
 		const u_x = controller_x(xRef - x[0], -x[1]);
-		return u_theta + u_x;
+		const u = u_theta + u_x;
+
+		if (u > MaxControl) {
+			return MaxControl;
+		} else if (u < -MaxControl) {
+			return -MaxControl;
+		}
+
+		return u;
 	};
 
 	const disturb = (t: number) => {

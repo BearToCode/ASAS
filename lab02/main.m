@@ -156,7 +156,7 @@ dt1_ode45_mov50 = movmean(dt1_ode45, 50); % moving average of the time step for 
 dt2_ode45_mov50 = movmean(dt2_ode45, 50);
 dt3_ode45_mov50 = movmean(dt3_ode45, 50);
 
-f_error = @(t, value, ref_t, ref_values) abs(value - interp1(ref_t, ref_values, t)); % error function
+f_error = @(t, value, ref_t, ref_values) (value ~= 0) .* (100 * abs(value - interp1(ref_t, ref_values, t)) / value); % error function
 
 pos1_error = f_error(t1_ode45, pos1_ode45, t1_ode89, pos1_ode89); % error for cart position
 pos2_error = f_error(t2_ode45, pos2_ode45, t2_ode89, pos2_ode89);
@@ -209,7 +209,7 @@ subplot(3, 3, 4);
 plot(t1_ode45, pos1_error, 'Color', u1_color, 'DisplayName', 'Error (ode45)', 'LineWidth', 1.5);
 grid on;
 xlabel('Time [s]');
-ylabel('Error [m]');
+ylabel('Error [%]');
 ylim([0 max_pos_error]);
 legend('Error (ode45)', 'Location', 'Best');
 title('$x(t)$ error for $u_1(t)$', 'Interpreter', 'latex');
@@ -218,7 +218,7 @@ subplot(3, 3, 5);
 plot(t2_ode45, pos2_error, 'Color', u2_color, 'DisplayName', 'Error (ode45)', 'LineWidth', 1.5);
 grid on;
 xlabel('Time [s]');
-ylabel('Error [m]');
+ylabel('Error [%]');
 ylim([0 max_pos_error]);
 legend('Error (ode45)', 'Location', 'Best');
 title('$x(t)$ error for $u_2(t)$', 'Interpreter', 'latex');
@@ -227,7 +227,7 @@ subplot(3, 3, 6);
 plot(t3_ode45, pos3_error, 'Color', u3_color, 'DisplayName', 'Error (ode45)', 'LineWidth', 1.5);
 grid on;
 xlabel('Time [s]');
-ylabel('Error [m]');
+ylabel('Error [%]');
 ylim([0 max_pos_error]);
 legend('Error (ode45)', 'Location', 'Best');
 title('$x(t)$ error for $u_3(t)$', 'Interpreter', 'latex');
@@ -236,7 +236,7 @@ subplot(3, 3, 7);
 plot(t1_ode45, theta1_error, 'Color', u1_color, 'DisplayName', 'Error (ode45)', 'LineWidth', 1.5);
 grid on;
 xlabel('Time [s]');
-ylabel('Error [°]');
+ylabel('Error [%]');
 ylim([0 max_theta_error]);
 legend('Error (ode45)', 'Location', 'Best');
 title('$\theta(t)$ error for $u_1(t)$', 'Interpreter', 'latex');
@@ -245,7 +245,7 @@ subplot(3, 3, 8);
 plot(t2_ode45, theta2_error, 'Color', u2_color, 'DisplayName', 'Error (ode45)', 'LineWidth', 1.5);
 grid on;
 xlabel('Time [s]');
-ylabel('Error [°]');
+ylabel('Error [%]');
 ylim([0 max_theta_error]);
 legend('Error (ode45)', 'Location', 'Best');
 title('$\theta(t)$ error for $u_2(t)$', 'Interpreter', 'latex');
@@ -254,7 +254,7 @@ subplot(3, 3, 9);
 plot(t3_ode45, theta3_error, 'Color', u3_color, 'DisplayName', 'Error (ode45)', 'LineWidth', 1.5);
 grid on;
 xlabel('Time [s]');
-ylabel('Error [°]');
+ylabel('Error [%]');
 ylim([0 max_theta_error]);
 legend('Error (ode45)', 'Location', 'Best');
 title('$\theta(t)$ error for $u_3(t)$', 'Interpreter', 'latex');
@@ -649,7 +649,7 @@ for sim_step_gain = u_gains
 
     t{idx} = sim_pulse.tout; % time vector
     pos{idx} = sim_pulse.x; % cart position
-    theta{idx} = sim_pulse.theta; % pendulum angle
+    theta{idx} = sim_pulse.theta .* (180 / pi) + 180; % pendulum angle
 
     idx = idx + 1;
 end
@@ -813,7 +813,7 @@ Kd_theta = 47;
 
 % Integration parameters
 x0 = [0; 0; 0; 0];
-r = @(t) x0; % reference input
+r = @(t) [0; 0; 0; 0]; % reference input
 d = @(t) 1 * (t <= 0.1);
 tspan = [0 20];
 
@@ -868,31 +868,47 @@ save_figure('task2_control_composite.png', keep_title = true)
 
 sim_control = sim('nonlinear_control.slx');
 
-d_sim = sim_control.d; % Disturbance
-x_sim = sim_control.x; % Output history
-u_sim = sim_control.u; % Control force
+t_sim = sim_control.tout; % time vector
+pos_sim = sim_control.x(:, 1); % cart position
+theta_sim = sim_control.x(:, 3) .* (180 / pi); % pendulum angle
+control_sim = sim_control.u; % control force
 
-figure
-plot(x_sim.time, x_sim.signals.values(:, 1));
-xlabel("Time [s]");
-ylabel('Cart position [m]');
-
-max_theta_sim = max(abs(x_sim.signals.values(:, 3) * 180 / pi));
-max_control_sim = max(abs(u_sim.signals.values));
+max_pos_sim = max(abs(pos_sim));
+max_theta_sim = max(abs(theta_sim));
+max_control_sim = max(abs(control_sim));
 
 figure;
-plot(u_sim.time, u_sim.signals.values, 'DisplayName', 'Control Force');
+subplot(2, 1, 1);
+plot(t_sim, control_sim, 'DisplayName', 'Control Force', 'LineWidth', 1.5);
 hold on;
 grid on;
 xlabel('Time [s]');
 ylabel('Control Force [N]');
 ylim([-max_control_sim max_control_sim]);
 yyaxis right;
-plot(x_sim.time, x_sim.signals.values(:, 3) * 180 / pi, 'DisplayName', 'Pendulum Angle');
+plot(t_sim, theta_sim, 'DisplayName', 'Pendulum Angle', 'LineWidth', 1.5);
 ylabel('Pendulum Angle [°]');
 ylim([-max_theta_sim max_theta_sim]);
 legend('$F_c(t)$', '$\theta(t)$', 'Interpreter', 'latex', 'Location', 'Best');
-title('Control Force and Pendulum Angle - PD Control', 'Interpreter', 'latex');
+hold off;
+title('Pendulum Angle - PD Control (Simulink)', 'Interpreter', 'latex');
+
+subplot(2, 1, 2);
+plot(t_sim, control_sim, 'DisplayName', 'Control Force', 'LineWidth', 1.5);
+hold on;
+grid on;
+xlabel('Time [s]');
+ylabel('Control Force [N]');
+ylim([-max_control_sim max_control_sim]);
+yyaxis right;
+plot(t_sim, pos_sim, 'DisplayName', 'Cart Position', 'LineWidth', 1.5);
+ylabel('Cart Position [m]');
+ylim([-max_pos_sim max_pos_sim]);
+legend('$F_c(t)$', '$x(t)$', 'Interpreter', 'latex', 'Location', 'Best');
+hold off;
+title('Cart Position - PD Control (Simulink)', 'Interpreter', 'latex');
+
+save_figure('task2_control_simulink.png', keep_title = true)
 
 %% Task 2.5 – Partial and full state feedback control
 % A. Show that the PD controller designed in Task 2.4 corresponds to a partial state feedback control, write
@@ -922,16 +938,31 @@ title('Real Part of Roots of the Closed-Loop System', 'Interpreter', 'latex');
 view(235, 45);
 save_figure('task2_roots.png')
 
-contourf(Kp_x, Kd_x, z, 'ShowText', 'on');
+figure;
+contourf(Kp_x, Kd_x, z, 'ShowText', 'on', 'DisplayName', 'Max Real Part of Roots');
 colorbar;
 xlabel('Kp_x');
 ylabel('Kd_x');
+hold on;
+% scatter(-5, -5, 'filled', 'DisplayName', 'PD Control'); Alternative version for the other theta controller
+scatter(-79, -46, 'filled', 'DisplayName', 'PD Control 1');
+scatter(-20, -20, 'filled', 'DisplayName', 'PD Control 2');
+scatter(-80, -10, 'filled', 'DisplayName', 'PD Control 3');
 title('Real Part of Roots of the Closed-Loop System', 'Interpreter', 'latex');
+legend;
 save_figure('task2_contour.png')
 
 % Use a global PD controller with the gains determined from the plot
 Kp_x = -79;
 Kd_x = -46;
+% Kp_x = -5; Alternative version for the other theta controller
+% Kd_x = -5;
+
+% Alternative versions:
+% Kp_x = -20;
+% Kd_x = -20;
+% Kp_x = -80;
+% Kd_x = -10;
 
 pd = @(x) Kp_x * x(1) + Kd_x * x(2) + Kp_theta * x(3) + Kd_theta * x(4); % PD control law
 
@@ -956,6 +987,7 @@ max_theta = max(abs(theta));
 max_control = max(abs(control));
 
 figure;
+subplot(2, 1, 1);
 plot(t, theta, 'DisplayName', 'Pendulum Angle', 'LineWidth', 1.5);
 ylim([-max_theta max_theta]);
 ylabel('Pendulum Angle [°]');
@@ -969,4 +1001,13 @@ grid on;
 legend('$\theta(t)$', '$x(t)$', 'Interpreter', 'latex', 'Location', 'Best');
 title('Pendulum Angle and Cart Position - Global PD Control', 'Interpreter', 'latex');
 
-save_figure('task2_control_global.png')
+subplot(2, 1, 2);
+plot(t, control, 'DisplayName', 'Control Force', 'LineWidth', 1.5);
+hold on;
+grid on;
+xlabel('Time [s]');
+ylabel('Control Force [N]');
+ylim([-max_control max_control]);
+title('Control Force - Global PD Control', 'Interpreter', 'latex');
+
+save_figure('task2_control_global.png', keep_title = true, aspect_ratio_multiplier = 1.5)
