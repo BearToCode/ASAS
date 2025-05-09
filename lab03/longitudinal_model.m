@@ -1,5 +1,5 @@
 function f = longitudinal_model(params, aer)
-    %% LONGITUDINAL_MODEL Returns the longitudinal model of the aircraft
+    % LONGITUDINAL_MODEL Returns the longitudinal model of the aircraft
     %
     % f = longitudinal_model(params, aer)
     %

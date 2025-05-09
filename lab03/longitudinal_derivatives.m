@@ -1,5 +1,5 @@
 function stability = longitudinal_derivatives(params, aer, x_eq, input_eq)
-    %% LONGITUDINAL_DERIVATIVES computes the longitudinal stability derivatives
+    % LONGITUDINAL_DERIVATIVES computes the longitudinal stability derivatives
     %
     % stability = longitudinal_derivatives(params, aer, x_eq, input_eq)
     %

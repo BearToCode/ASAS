@@ -1,5 +1,5 @@
 function [A, B] = longitudinal_linear_model(params, stability, x_eq)
-    %% LONGITUDINAL_LINEAR_MODEL Returns the longitudinal linear model of the aircraft
+    % LONGITUDINAL_LINEAR_MODEL Returns the longitudinal linear model of the aircraft
     %
     % [A, B] = longitudinal_linear_model(params, stability, x_eq)
     %
