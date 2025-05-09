@@ -131,10 +131,10 @@ save_figure('task2_trim.png', keep_title = true);
 % B. Provide comments on the evolution of the variables.
 
 delta = @(t) delta_trim + (t >= 5 & t <= 10) * (-1 * pi / 180); % elevator deflection [rad]
-u = @(t) [delta(t); T_trim];
+input = @(t) [delta(t); T_trim];
 
 tspan = [0 100];
-odefun = @(t, x) f(x, u(t));
+odefun = @(t, x) f(x, input(t));
 [t, x] = ode45(odefun, tspan, x_trim);
 
 u = x(:, 1);
@@ -221,56 +221,71 @@ stability = longitudinal_derivatives(params, aer, x_trim, u_trim);
 
 x0 = zeros(4, 1);
 delta_delta = @(t) (t >= 5 & t <= 10) * (-1 * pi / 180); % elevator deflection [rad]
-delta_u = @(t) [delta_delta(t); 0];
+delta_input = @(t) [delta_delta(t); 0];
 
 tspan = [0 100]; % time span
-odefun = @(t, delta_x) A * delta_x + B * delta_u(t);
-[t, delta_x] = ode45(odefun, tspan, x0); % solve the ODE
+odefun = @(t, delta_x) A * delta_x + B * delta_input(t);
+[t_lin, delta_x] = ode45(odefun, tspan, x0); % solve the ODE
 
-u = delta_x(:, 1) + x_trim(1);
-w = delta_x(:, 2) + x_trim(2);
-q = delta_x(:, 3) + x_trim(3);
-q_deg = q * 180 / pi;
-theta = delta_x(:, 4) + x_trim(4);
-theta_deg = theta * 180 / pi;
-alpha = atan(w ./ u);
-alpha_deg = alpha * 180 / pi;
+u_lin = delta_x(:, 1) + x_trim(1);
+w_lin = delta_x(:, 2) + x_trim(2);
+q_lin = delta_x(:, 3) + x_trim(3);
+q_deg_lin = q_lin * 180 / pi;
+theta_lin = delta_x(:, 4) + x_trim(4);
+theta_deg_lin = theta_lin * 180 / pi;
+alpha_lin = atan(w_lin ./ u_lin);
+alpha_deg_lin = alpha_lin * 180 / pi;
 
 figure;
 subplot(3, 2, 1);
-plot(t, u);
+plot(t, u, 'DisplayName', 'Nonlinear', 'LineStyle', '--');
+hold on;
+plot(t_lin, u_lin, 'DisplayName', 'Linearized');
 grid on;
 xlabel('Time [s]');
 ylabel('$u$ [m/s]', 'Interpreter', 'latex');
 title('Forward speed', 'Interpreter', 'latex');
+legend('Interpreter', 'latex')
 
 subplot(3, 2, 2);
-plot(t, w);
+plot(t, w, 'DisplayName', 'Nonlinear', 'LineStyle', '--');
+hold on;
+plot(t_lin, w_lin, 'DisplayName', 'Linearized');
 grid on;
 xlabel('Time [s]');
 ylabel('$w$ [m/s]', 'Interpreter', 'latex');
 title('Heave velocity', 'Interpreter', 'latex');
+legend('Interpreter', 'latex')
 
 subplot(3, 2, 3);
-plot(t, q_deg);
+plot(t, q_deg, 'DisplayName', 'Nonlinear', 'LineStyle', '--');
+hold on;
+plot(t_lin, q_deg_lin, 'DisplayName', 'Linearized');
 grid on;
 xlabel('Time [s]');
 ylabel('$q$ [deg/s]', 'Interpreter', 'latex');
 title('Pitch rate', 'Interpreter', 'latex');
+legend('Interpreter', 'latex')
 
 subplot(3, 2, 4);
-plot(t, theta_deg);
+plot(t, theta_deg, 'DisplayName', 'Nonlinear', 'LineStyle', '--');
+hold on;
+plot(t_lin, theta_deg_lin, 'DisplayName', 'Linearized');
 grid on;
 xlabel('Time [s]');
 ylabel('$\theta$ [deg]', 'Interpreter', 'latex');
 title('Pitch attitude', 'Interpreter', 'latex');
+legend('Interpreter', 'latex')
 
 subplot(3, 2, [5 6]);
-plot(t, alpha_deg);
+plot(t, alpha_deg, 'DisplayName', 'Nonlinear', 'LineStyle', '--');
+hold on;
+plot(t_lin, alpha_deg_lin, 'DisplayName', 'Linearized');
 grid on;
 xlabel('Time [s]');
 ylabel('$\alpha$ [deg]', 'Interpreter', 'latex');
 title('Angle of attack', 'Interpreter', 'latex');
+legend('Interpreter', 'latex')
 
 sgtitle('Longitudinal dynamics - Linearized model', 'Interpreter', 'latex');
 
