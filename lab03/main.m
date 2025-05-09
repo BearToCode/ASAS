@@ -223,38 +223,49 @@ tspan = [0 100]; % time span
 odefun = @(t, delta_x) A * delta_x + B * delta_u(t);
 [t, delta_x] = ode45(odefun, tspan, x0); % solve the ODE
 
-delta_u = delta_x(:, 1) + x_trim(1); % u [m/s]
-delta_w = delta_x(:, 2) + x_trim(2); % w [m/s]
-delta_q = delta_x(:, 3) + x_trim(3); % q [rad/s]
-delta_theta = delta_x(:, 4) + x_trim(4); % theta [rad]
+u = delta_x(:, 1) + x_trim(1);
+w = delta_x(:, 2) + x_trim(2);
+q = delta_x(:, 3) + x_trim(3);
+q_deg = q * 180 / pi;
+theta = delta_x(:, 4) + x_trim(4);
+theta_deg = theta * 180 / pi;
+alpha = atan(w ./ u);
+alpha_deg = alpha * 180 / pi;
 
 figure;
-subplot(2, 2, 1);
-plot(t, delta_u);
+subplot(3, 2, 1);
+plot(t, u);
 grid on;
 xlabel('Time [s]');
 ylabel('Forward speed [m/s]');
 title('Forward speed', 'Interpreter', 'latex');
 
-subplot(2, 2, 2);
-plot(t, delta_w);
+subplot(3, 2, 2);
+plot(t, w);
 grid on;
 xlabel('Time [s]');
 ylabel('Heave velocity [m/s]');
 title('Heave velocity', 'Interpreter', 'latex');
 
-subplot(2, 2, 3);
-plot(t, delta_q * 180 / pi);
+subplot(3, 2, 3);
+plot(t, q_deg);
 grid on;
 xlabel('Time [s]');
 ylabel('Pitch rate [deg/s]');
 title('Pitch rate', 'Interpreter', 'latex');
 
-subplot(2, 2, 4);
-plot(t, delta_theta * 180 / pi);
+subplot(3, 2, 4);
+plot(t, theta_deg);
 grid on;
 xlabel('Time [s]');
 ylabel('Pitch attitude [deg]');
 title('Pitch attitude', 'Interpreter', 'latex');
+
+subplot(3, 2, [5 6]);
+plot(t, alpha_deg);
+grid on;
+xlabel('Time [s]');
+ylabel('Angle of attack [deg]');
+title('Angle of attack', 'Interpreter', 'latex');
 
 sgtitle('Longitudinal dynamics - Linearized model', 'Interpreter', 'latex');
