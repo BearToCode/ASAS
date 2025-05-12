@@ -10,7 +10,7 @@ params.S = 32.8; % wing area [m^2]
 params.c = 2.29; % mean aerodynamic chord [m]
 params.a_T = 0; % thrustline angle [rad]
 params.z_T = 0.378; % thrustline vertical distance [m]
-params.g = 9.81; % gravity [m/s^2]
+params.g = 9.80665; % gravity [m/s^2]
 
 % Get the aerodynamic model
 aer = aerodynamic_model(params);
@@ -192,6 +192,13 @@ sgtitle('Longitudinal dynamics - Longitudinal pulse response', 'Interpreter', 'l
 
 save_figure('task3_nonlinear_response.png', keep_title = true);
 
+%% Task 4 - Simulink
+clc;
+simnl = sim("task4_simulink.slx");
+% plot(simnl.tout, simnl.delta)
+hhh = 5;
+plotta = reshape(simnl.x.signals.values(hhh,1,:), [1, length(simnl.x.signals.values(hhh,1,:))]);
+plot(simnl.tout, plotta)
 %% Task 5 – Linearized model – EOM
 % stability.X_u = -0.057076461;
 % stability.X_w = 0.125051144;
@@ -216,6 +223,17 @@ save_figure('task3_nonlinear_response.png', keep_title = true);
 stability = longitudinal_derivatives(params, aer, x_trim, u_trim);
 
 [A, B] = longitudinal_linear_model(params, stability, x_trim);
+
+eigA = eig(A);
+figure
+plot(real(eigA), imag(eigA), "x")
+grid on;
+title("Eigenvalues of State Matrix A");
+
+w_n = sqrt(abs(real(eigA))); % è giusto ?
+f_n = 2*pi*w_n; 
+
+xi_n = cos(atan(imag(eigA)./real(eigA))); % è giusto ?
 
 % Task 7 – Linear response to elevator pulse
 
@@ -290,3 +308,13 @@ legend('Interpreter', 'latex')
 sgtitle('Longitudinal dynamics - Linearized model', 'Interpreter', 'latex');
 
 save_figure('task7_linear_response.png', keep_title = true);
+
+%% Task 8 - Simulink
+% controllare
+clc;
+siml = sim("task8_simulink.slx");
+% plot(simnl.tout, simnl.delta)
+plot(siml.tout, siml.x.signals.values(:,4))
+% hhh = 5;
+% plotta = reshape(siml.x.signals.values(hhh,1,:), [1, length(siml.x.signals.values(hhh,1,:))]);
+% plot(siml.tout, plotta)
