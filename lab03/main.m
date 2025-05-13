@@ -10,7 +10,7 @@ params.S = 32.8; % wing area [m^2]
 params.c = 2.29; % mean aerodynamic chord [m]
 params.a_T = 0; % thrustline angle [rad]
 params.z_T = 0.378; % thrustline vertical distance [m]
-params.g = 9.81; % gravity [m/s^2]
+params.g = 9.80665; % gravity [m/s^2]
 
 % Get the aerodynamic model
 aer = aerodynamic_model(params);
@@ -192,6 +192,18 @@ sgtitle('Longitudinal dynamics - Longitudinal pulse response', 'Interpreter', 'l
 
 save_figure('task3_nonlinear_response.png', keep_title = true);
 
+%% Task 4 - Simulink
+clc;
+simnl = sim("task4_simulink.slx");
+% plot(simnl.tout, simnl.delta)
+figure
+for hhh = 1:5
+subplot(2,3,hhh)
+plotta = reshape(simnl.x.signals.values(hhh,1,:), [1, length(simnl.x.signals.values(hhh,1,:))]);
+plot(simnl.tout, plotta)
+end
+subplot(2,3,6)
+plot(simnl.tout, simnl.alpha.data)
 %% Task 5 – Linearized model – EOM
 % stability.X_u = -0.057076461;
 % stability.X_w = 0.125051144;
@@ -217,8 +229,27 @@ stability = longitudinal_derivatives_Stefano(params, aer, x_trim, u_trim);
 
 [A, B] = longitudinal_linear_model(params, stability, x_trim);
 
-% Task 7 – Linear response to elevator pulse
+C = eye(4);
+D = zeros(2, 4)';
 
+%% Task 6 - Rivedere
+eigA = eig(A);
+figure
+plot(real(eigA), imag(eigA), "x")
+grid on;
+title("Eigenvalues of State Matrix A");
+
+w_n = sqrt(abs(real(eigA))); % è giusto ?
+f_n = 2*pi*w_n; 
+
+xi_n = cos(atan(imag(eigA)./real(eigA))); % è giusto ?
+
+% FUNZIONI DI TRASFERIMENTO ....................
+syms s;
+G = C*(s*eye(4) - A)\eye(4)*B + D
+%% Task 7 – Linear response to elevator pulse
+
+% MANCA PLOT H ! 
 x0 = zeros(4, 1);
 delta_delta = @(t) (t >= 5 & t <= 10) * (-1 * pi / 180); % elevator deflection [rad]
 delta_input = @(t) [delta_delta(t); 0];
@@ -290,3 +321,25 @@ legend('Interpreter', 'latex')
 sgtitle('Longitudinal dynamics - Linearized model', 'Interpreter', 'latex');
 
 save_figure('task7_linear_response.png', keep_title = true);
+
+%% Task 8 - Simulink
+% controllare
+clc;
+L = [sin(x_trim(4)), -cos(x_trim(4)), x_trim(1)*cos(x_trim(4)) + x_trim(2)*sin(x_trim(4));...
+    (-x_trim(2)/x_trim(1)^2) / (1 + (x_trim(2)/x_trim(1))^2), (1 / x_trim(1)) / (1 + (x_trim(2)/x_trim(1))^2), 0];
+siml = sim("task8_simulink.slx");
+% figure
+% plot(siml.tout, siml.delta*180/pi)
+figure
+for idx = 1:4
+    subplot(2,3,idx);
+    plot(siml.tout, siml.y.signals.values(:, idx))
+    grid on
+end
+subplot(2,3,5)
+plot(siml.tout, siml.h)
+grid on
+subplot(2,3,6)
+plot(siml.tout, siml.alpha)
+grid on
+
