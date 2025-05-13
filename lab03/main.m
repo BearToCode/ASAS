@@ -196,9 +196,14 @@ save_figure('task3_nonlinear_response.png', keep_title = true);
 clc;
 simnl = sim("task4_simulink.slx");
 % plot(simnl.tout, simnl.delta)
-hhh = 5;
+figure
+for hhh = 1:5
+subplot(2,3,hhh)
 plotta = reshape(simnl.x.signals.values(hhh,1,:), [1, length(simnl.x.signals.values(hhh,1,:))]);
 plot(simnl.tout, plotta)
+end
+subplot(2,3,6)
+plot(simnl.tout, simnl.alpha.data)
 %% Task 5 – Linearized model – EOM
 % stability.X_u = -0.057076461;
 % stability.X_w = 0.125051144;
@@ -224,6 +229,10 @@ stability = longitudinal_derivatives(params, aer, x_trim, u_trim);
 
 [A, B] = longitudinal_linear_model(params, stability, x_trim);
 
+C = eye(4);
+D = zeros(2, 4)';
+
+%% Task 6 - Rivedere
 eigA = eig(A);
 figure
 plot(real(eigA), imag(eigA), "x")
@@ -235,8 +244,12 @@ f_n = 2*pi*w_n;
 
 xi_n = cos(atan(imag(eigA)./real(eigA))); % è giusto ?
 
-% Task 7 – Linear response to elevator pulse
+% FUNZIONI DI TRASFERIMENTO ....................
+syms s;
+G = C*(s*eye(4) - A)\eye(4)*B + D
+%% Task 7 – Linear response to elevator pulse
 
+% MANCA PLOT H ! 
 x0 = zeros(4, 1);
 delta_delta = @(t) (t >= 5 & t <= 10) * (-1 * pi / 180); % elevator deflection [rad]
 delta_input = @(t) [delta_delta(t); 0];
@@ -312,9 +325,21 @@ save_figure('task7_linear_response.png', keep_title = true);
 %% Task 8 - Simulink
 % controllare
 clc;
+L = [sin(x_trim(4)), -cos(x_trim(4)), x_trim(1)*cos(x_trim(4)) + x_trim(2)*sin(x_trim(4));...
+    (-x_trim(2)/x_trim(1)^2) / (1 + (x_trim(2)/x_trim(1))^2), (1 / x_trim(1)) / (1 + (x_trim(2)/x_trim(1))^2), 0];
 siml = sim("task8_simulink.slx");
-% plot(simnl.tout, simnl.delta)
-plot(siml.tout, siml.x.signals.values(:,4))
-% hhh = 5;
-% plotta = reshape(siml.x.signals.values(hhh,1,:), [1, length(siml.x.signals.values(hhh,1,:))]);
-% plot(siml.tout, plotta)
+% figure
+% plot(siml.tout, siml.delta*180/pi)
+figure
+for idx = 1:4
+    subplot(2,3,idx);
+    plot(siml.tout, siml.y.signals.values(:, idx))
+    grid on
+end
+subplot(2,3,5)
+plot(siml.tout, siml.h)
+grid on
+subplot(2,3,6)
+plot(siml.tout, siml.alpha)
+grid on
+
