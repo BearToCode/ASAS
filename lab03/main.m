@@ -114,7 +114,7 @@ title('Angle of attack', 'Interpreter', 'latex');
 
 sgtitle('Longitudinal dynamics', 'Interpreter', 'latex');
 
-save_figure('task2_trim.png', keep_title = true);
+%save_figure('task2_trim.png', keep_title = true);
 
 %% Task 3 - Nonlinear response to elevator pulse
 % Starting from the initial condition corresponding to x(0) = x_trim,
@@ -197,6 +197,7 @@ clc;
 simnl = sim("task4_simulink.slx");
 % plot(simnl.tout, simnl.delta)
 figure
+% sistemare nomi variabili!
 for hhh = 1:5
 subplot(2,3,hhh)
 plotta = reshape(simnl.x.signals.values(hhh,1,:), [1, length(simnl.x.signals.values(hhh,1,:))]);
@@ -230,7 +231,7 @@ stability = longitudinal_derivatives(params, aer, x_trim, u_trim);
 [A, B] = longitudinal_linear_model(params, stability, x_trim);
 
 C = eye(4);
-D = zeros(2, 4)';
+D = zeros(4,2);
 
 %% Task 6 - Rivedere
 eigA = eig(A);
@@ -246,7 +247,7 @@ xi_n = cos(atan(imag(eigA)./real(eigA))); % è giusto ?
 
 % FUNZIONI DI TRASFERIMENTO ....................
 syms s;
-G = C*(s*eye(4) - A)\eye(4)*B + D
+G = C*(s*eye(4) - A)\eye(4)*B(:,1) + D
 %% Task 7 – Linear response to elevator pulse
 
 % MANCA PLOT H ! 
@@ -325,6 +326,7 @@ save_figure('task7_linear_response.png', keep_title = true);
 %% Task 8 - Simulink
 % controllare
 clc;
+% cambiare nome a L!
 L = [sin(x_trim(4)), -cos(x_trim(4)), x_trim(1)*cos(x_trim(4)) + x_trim(2)*sin(x_trim(4));...
     (-x_trim(2)/x_trim(1)^2) / (1 + (x_trim(2)/x_trim(1))^2), (1 / x_trim(1)) / (1 + (x_trim(2)/x_trim(1))^2), 0];
 siml = sim("task8_simulink.slx");
