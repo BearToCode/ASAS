@@ -213,7 +213,7 @@ save_figure('task3_nonlinear_response.png', keep_title = true);
 % stability.Z_T = 0;
 % stability.M_T = 0;
 
-stability = longitudinal_derivatives(params, aer, x_trim, u_trim);
+stability = longitudinal_derivatives_Stefano(params, aer, x_trim, u_trim);
 
 [A, B] = longitudinal_linear_model(params, stability, x_trim);
 

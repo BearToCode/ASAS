@@ -59,21 +59,21 @@ function stability = longitudinal_derivatives_Stefano(params, aer, x_eq, input_e
 
     c_L = c_L0 + c_L_alpha * alpha + c_L_delta * delta;
     c_D = c_D0 + c_D_alpha * alpha + c_D_alpha2 * alpha ^ 2;
-    c_M = c_M0 + c_M_alpha * alpha + c_M_q * (c / sqrt(u_eq ^ 2 * w_eq ^ 2)) * q_eq + c_M_delta * delta;
+    c_M = c_M0 + c_M_alpha * alpha + c_M_q * (c / sqrt(u_eq ^ 2 + w_eq ^ 2)) * q_eq + c_M_delta * delta;
    
-    stability.X_u = (rho*u_eq*S*(c_L*sin(alpha)+c_D*cos(alpha))-1/2*rho*w_eq*S*(c_L_alpha*sin(alpha)+c_L*cos(alpha)+(c_D_alpha+2*c_D_alpha2*alpha)*cos(alpha)-c_D*sin(alpha)))/m;
-    stability.X_w = (rho*w_eq*S*(c_L*sin(alpha)+c_D*cos(alpha))+1/2*rho*u_eq*S*(c_L_alpha*sin(alpha)+c_L*cos(alpha)+(c_D_alpha+2*c_D_alpha2*alpha)*cos(alpha)-c_D*sin(alpha)))/m;
+    stability.X_u = (rho*u_eq*S*(c_L*sin(alpha)-c_D*cos(alpha))-1/2*rho*w_eq*S*(c_L_alpha*sin(alpha)+c_L*cos(alpha)-(c_D_alpha+2*c_D_alpha2*alpha)*cos(alpha)+c_D*sin(alpha)))/m;
+    stability.X_w = (rho*w_eq*S*(c_L*sin(alpha)-c_D*cos(alpha))+1/2*rho*u_eq*S*(c_L_alpha*sin(alpha)+c_L*cos(alpha)-(c_D_alpha+2*c_D_alpha2*alpha)*cos(alpha)+c_D*sin(alpha)))/m;
     stability.X_delta = 1/2*rho*(u_eq^2+w_eq^2)*S*c_L_delta*sin(alpha)/m;
     stability.X_T = cos(a_T) / m;
     stability.Z_u = (-rho*u_eq*S*(c_L*cos(alpha)+c_D*sin(alpha))+1/2*rho*w_eq*S*(c_L_alpha*cos(alpha)-c_L*sin(alpha)+(c_D_alpha+2*c_D_alpha2*alpha)*sin(alpha)+c_D*cos(alpha)))/m;
-    stability.Z_w = (-rho*w_eq*S*(c_L*cos(alpha)+c_D*sin(alpha))+1/2*rho*u_eq*S*(c_L_alpha*cos(alpha)-c_L*sin(alpha)+(c_D_alpha+2*c_D_alpha2*alpha)*sin(alpha)+c_D*cos(alpha)))/m;
+    stability.Z_w = (-rho*w_eq*S*(c_L*cos(alpha)+c_D*sin(alpha))-1/2*rho*u_eq*S*(c_L_alpha*cos(alpha)-c_L*sin(alpha)+(c_D_alpha+2*c_D_alpha2*alpha)*sin(alpha)+c_D*cos(alpha)))/m;
     stability.Z_q = 0;
     stability.Z_w_dot = 0;
     stability.Z_delta = -1/2*rho*(u_eq^2+w_eq^2)*S*c_L_delta*cos(alpha)/m;
     stability.Z_T = -sin(a_T) / m;
     stability.M_u = (rho*u_eq*S*c*c_M-1/2*rho*w_eq*S*c*c_M_alpha)/I_yy;
     stability.M_w = (rho*w_eq*S*c*c_M+1/2*rho*u_eq*S*c*c_M_alpha)/I_yy;
-    stability.M_q = 1/2*rho*(u_eq^2+w_eq^2)*S*c^2*c_M_q/I_yy;
+    stability.M_q = 1/2*rho*sqrt(u_eq^2+w_eq^2)*S*c^2*c_M_q/I_yy;
     stability.M_w_dot = 0;
     stability.M_delta = 1/2*rho*(u_eq^2+w_eq^2)*S*c*c_M_delta/I_yy;
     stability.M_T = z_T / I_yy;
