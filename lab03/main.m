@@ -226,7 +226,7 @@ plot(simnl.tout, simnl.alpha.data)
 % stability.Z_T = 0;
 % stability.M_T = 0;
 
-stability = longitudinal_derivatives(params, aer, x_trim, u_trim);
+stability = longitudinal_derivatives_Stefano(params, aer, x_trim, u_trim);
 
 [A, B] = longitudinal_linear_model(params, stability, x_trim);
 
