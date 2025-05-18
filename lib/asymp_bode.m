@@ -15,8 +15,8 @@ function [mag, phase] = asymp_bode(G, w)
 
     db = @(x) 20 * log10(x);
 
-    w_z = [1 ./ abs(params.t_i), params.a_n'];
-    w_p = [1 ./ abs(params.T_i), params.w_n'];
+    w_z = [1 ./ abs(params.t_i'), params.a_n'];
+    w_p = [1 ./ abs(params.T_i'), params.w_n'];
 
     z = [params.zeros_real', params.zeros_cc'];
     p = [params.poles_real', params.poles_cc'];

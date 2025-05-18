@@ -53,23 +53,28 @@ function stability = longitudinal_derivatives(params, aer, x_eq, input_eq)
 
     [~, ~, ~, rho, ~, ~] = atmosisa(h_eq);
 
-    delta_eq = input_eq(1);
+    delta = input_eq(1);
     % T_eq = input_eq(2);
+    alpha = atan(w_eq / u_eq);
 
-    stability.X_u =- (S * rho * (u_eq ^ 2) ^ (3/2) * (2 * c_D0 * u_eq ^ 2 + c_D0 * w_eq ^ 2 + c_L_alpha * w_eq ^ 2 + 2 * c_D_alpha2 * u_eq ^ 2 * atan(w_eq / u_eq) ^ 2 + c_D_alpha2 * w_eq ^ 2 * atan(w_eq / u_eq) ^ 2 + 2 * c_D_alpha * u_eq ^ 2 * atan(w_eq / u_eq) + c_D_alpha * w_eq ^ 2 * atan(w_eq / u_eq) - c_D_alpha * u_eq * w_eq - c_L0 * u_eq * w_eq - c_L_delta * delta_eq * u_eq * w_eq - 2 * c_D_alpha2 * u_eq * w_eq * atan(w_eq / u_eq) - c_L_alpha * u_eq * w_eq * atan(w_eq / u_eq))) / (2 * m * u_eq ^ 3 * (u_eq ^ 2 + w_eq ^ 2) ^ (1/2));
-    stability.X_w = (S * rho * (u_eq ^ 2) ^ (3/2) * (c_L0 * u_eq ^ 2 - c_D_alpha * u_eq ^ 2 + 2 * c_L0 * w_eq ^ 2 - 2 * c_D_alpha2 * u_eq ^ 2 * atan(w_eq / u_eq) + c_L_alpha * u_eq ^ 2 * atan(w_eq / u_eq) + 2 * c_L_alpha * w_eq ^ 2 * atan(w_eq / u_eq) - c_D0 * u_eq * w_eq + c_L_alpha * u_eq * w_eq + c_L_delta * delta_eq * u_eq ^ 2 + 2 * c_L_delta * delta_eq * w_eq ^ 2 - c_D_alpha2 * u_eq * w_eq * atan(w_eq / u_eq) ^ 2 - c_D_alpha * u_eq * w_eq * atan(w_eq / u_eq))) / (2 * m * u_eq ^ 3 * (u_eq ^ 2 + w_eq ^ 2) ^ (1/2));
-    stability.X_delta = (S * c_L_delta * rho * w_eq * abs(u_eq) * (u_eq ^ 2 + w_eq ^ 2) ^ (1/2)) / (2 * m * u_eq);
+    c_L = c_L0 + c_L_alpha * alpha + c_L_delta * delta;
+    c_D = c_D0 + c_D_alpha * alpha + c_D_alpha2 * alpha ^ 2;
+    c_M = c_M0 + c_M_alpha * alpha + c_M_q * (c / sqrt(u_eq ^ 2 + w_eq ^ 2)) * q_eq + c_M_delta * delta;
+
+    stability.X_u = (rho * u_eq * S * (c_L * sin(alpha) - c_D * cos(alpha)) -1/2 * rho * w_eq * S * (c_L_alpha * sin(alpha) + c_L * cos(alpha) - (c_D_alpha + 2 * c_D_alpha2 * alpha) * cos(alpha) + c_D * sin(alpha))) / m;
+    stability.X_w = (rho * w_eq * S * (c_L * sin(alpha) - c_D * cos(alpha)) +1/2 * rho * u_eq * S * (c_L_alpha * sin(alpha) + c_L * cos(alpha) - (c_D_alpha + 2 * c_D_alpha2 * alpha) * cos(alpha) + c_D * sin(alpha))) / m;
+    stability.X_delta = 1/2 * rho * (u_eq ^ 2 + w_eq ^ 2) * S * c_L_delta * sin(alpha) / m;
     stability.X_T = cos(a_T) / m;
-    stability.Z_u =- (S * rho * (u_eq ^ 2) ^ (3/2) * (2 * c_L0 * u_eq ^ 2 - c_D_alpha * w_eq ^ 2 + c_L0 * w_eq ^ 2 + 2 * c_L_alpha * u_eq ^ 2 * atan(w_eq / u_eq) - 2 * c_D_alpha2 * w_eq ^ 2 * atan(w_eq / u_eq) + c_L_alpha * w_eq ^ 2 * atan(w_eq / u_eq) + c_D0 * u_eq * w_eq - c_L_alpha * u_eq * w_eq + 2 * c_L_delta * delta_eq * u_eq ^ 2 + c_L_delta * delta_eq * w_eq ^ 2 + c_D_alpha2 * u_eq * w_eq * atan(w_eq / u_eq) ^ 2 + c_D_alpha * u_eq * w_eq * atan(w_eq / u_eq))) / (2 * m * u_eq ^ 3 * (u_eq ^ 2 + w_eq ^ 2) ^ (1/2));
-    stability.Z_w =- (S * rho * (u_eq ^ 2) ^ (3/2) * (c_D0 * u_eq ^ 2 + c_L_alpha * u_eq ^ 2 + 2 * c_D0 * w_eq ^ 2 + c_D_alpha2 * u_eq ^ 2 * atan(w_eq / u_eq) ^ 2 + 2 * c_D_alpha2 * w_eq ^ 2 * atan(w_eq / u_eq) ^ 2 + c_D_alpha * u_eq ^ 2 * atan(w_eq / u_eq) + 2 * c_D_alpha * w_eq ^ 2 * atan(w_eq / u_eq) + c_D_alpha * u_eq * w_eq + c_L0 * u_eq * w_eq + c_L_delta * delta_eq * u_eq * w_eq + 2 * c_D_alpha2 * u_eq * w_eq * atan(w_eq / u_eq) + c_L_alpha * u_eq * w_eq * atan(w_eq / u_eq))) / (2 * m * u_eq ^ 3 * (u_eq ^ 2 + w_eq ^ 2) ^ (1/2));
+    stability.Z_u = (-rho * u_eq * S * (c_L * cos(alpha) + c_D * sin(alpha)) +1/2 * rho * w_eq * S * (c_L_alpha * cos(alpha) - c_L * sin(alpha) + (c_D_alpha + 2 * c_D_alpha2 * alpha) * sin(alpha) + c_D * cos(alpha))) / m;
+    stability.Z_w = (-rho * w_eq * S * (c_L * cos(alpha) + c_D * sin(alpha)) -1/2 * rho * u_eq * S * (c_L_alpha * cos(alpha) - c_L * sin(alpha) + (c_D_alpha + 2 * c_D_alpha2 * alpha) * sin(alpha) + c_D * cos(alpha))) / m;
     stability.Z_q = 0;
     stability.Z_w_dot = 0;
-    stability.Z_delta =- (S * c_L_delta * rho * abs(u_eq) * (u_eq ^ 2 + w_eq ^ 2) ^ (1/2)) / (2 * m);
+    stability.Z_delta = -1/2 * rho * (u_eq ^ 2 + w_eq ^ 2) * S * c_L_delta * cos(alpha) / m;
     stability.Z_T = -sin(a_T) / m;
-    stability.M_u =- ((S * c * rho * (c_M_alpha * w_eq * abs(w_eq) * (u_eq ^ 2) ^ (3/2) + c * c_M_q * q_eq * u_eq ^ 3 + c * c_M_q * q_eq * u_eq * w_eq ^ 2)) / (2 * abs(w_eq) * (u_eq ^ 2) ^ (3/2)) - (S * c * rho * u_eq * (c_M0 * abs(u_eq) * abs(w_eq) + c * c_M_q * q_eq + c_M_alpha * atan(w_eq / u_eq) * abs(u_eq) * abs(w_eq) + c_M_delta * delta_eq * abs(u_eq) * abs(w_eq))) / (abs(u_eq) * abs(w_eq))) / I_yy;
-    stability.M_w = ((S * c * rho * (u_eq ^ 2 + w_eq ^ 2) * (c_M_alpha / (u_eq * (w_eq ^ 2 / u_eq ^ 2 + 1)) - (c * c_M_q * q_eq * u_eq ^ 2 * w_eq) / (u_eq ^ 2 * w_eq ^ 2) ^ (3/2))) / 2 + S * c * rho * w_eq * (c_M0 + c_M_delta * delta_eq + c_M_alpha * atan(w_eq / u_eq) + (c * c_M_q * q_eq) / (u_eq ^ 2 * w_eq ^ 2) ^ (1/2))) / I_yy;
-    stability.M_q = (S * c ^ 2 * c_M_q * rho * (u_eq ^ 2 + w_eq ^ 2)) / (2 * I_yy * abs(u_eq) * abs(w_eq));
+    stability.M_u = (rho * u_eq * S * c * c_M -1/2 * rho * w_eq * S * c * c_M_alpha) / I_yy;
+    stability.M_w = (rho * w_eq * S * c * c_M +1/2 * rho * u_eq * S * c * c_M_alpha) / I_yy;
+    stability.M_q = 1/2 * rho * sqrt(u_eq ^ 2 + w_eq ^ 2) * S * c ^ 2 * c_M_q / I_yy;
     stability.M_w_dot = 0;
-    stability.M_delta = (S * c * c_M_delta * rho * (u_eq ^ 2 + w_eq ^ 2)) / (2 * I_yy);
+    stability.M_delta = 1/2 * rho * (u_eq ^ 2 + w_eq ^ 2) * S * c * c_M_delta / I_yy;
     stability.M_T = z_T / I_yy;
 end

@@ -114,7 +114,7 @@ title('Angle of attack', 'Interpreter', 'latex');
 
 sgtitle('Longitudinal dynamics', 'Interpreter', 'latex');
 
-%save_figure('task2_trim.png', keep_title = true);
+save_figure('task2_trim.png', keep_title = true);
 
 %% Task 3 - Nonlinear response to elevator pulse
 % Starting from the initial condition corresponding to x(0) = x_trim,
@@ -192,19 +192,68 @@ sgtitle('Longitudinal dynamics - Longitudinal pulse response', 'Interpreter', 'l
 
 save_figure('task3_nonlinear_response.png', keep_title = true);
 
-%% Task 4 - Simulink
-clc;
-simnl = sim("task4_simulink.slx");
-% plot(simnl.tout, simnl.delta)
-figure
-% sistemare nomi variabili!
-for hhh = 1:5
-subplot(2,3,hhh)
-plotta = reshape(simnl.x.signals.values(hhh,1,:), [1, length(simnl.x.signals.values(hhh,1,:))]);
-plot(simnl.tout, plotta)
-end
-subplot(2,3,6)
-plot(simnl.tout, simnl.alpha.data)
+%% Task 4 – Nonlinear response to elevator pulse (Simulink)
+% Repeat Task 3 using a Simulink model.
+
+sim_nl = sim("task4_simulink.slx");
+
+t = sim_nl.tout;
+
+u = sim_nl.x.signals.values(:, 1, :);
+w = sim_nl.x.signals.values(:, 2, :);
+q_deg = sim_nl.x.signals.values(:, 3, :) * 180 / pi;
+theta_deg = sim_nl.x.signals.values(:, 4, :) * 180 / pi;
+h = sim_nl.x.signals.values(:, 5, :);
+alpha = atan(w ./ u);
+alpha_deg = alpha * 180 / pi;
+
+figure;
+subplot(3, 2, 1);
+plot(t, u);
+grid on;
+xlabel('Time [s]');
+ylabel('$u$ [m/s]', 'Interpreter', 'latex');
+title('Forward speed', 'Interpreter', 'latex');
+
+subplot(3, 2, 2);
+plot(t, w);
+grid on;
+xlabel('Time [s]');
+ylabel('$w$ [m/s]', 'Interpreter', 'latex');
+title('Heave velocity', 'Interpreter', 'latex');
+
+subplot(3, 2, 3);
+plot(t, q_deg);
+grid on;
+xlabel('Time [s]');
+ylabel('$q$ [deg/s]', 'Interpreter', 'latex');
+title('Pitch rate', 'Interpreter', 'latex');
+
+subplot(3, 2, 4);
+plot(t, theta_deg);
+grid on;
+xlabel('Time [s]');
+ylabel('$\theta$ [deg]', 'Interpreter', 'latex');
+title('Pitch attitude', 'Interpreter', 'latex');
+
+subplot(3, 2, 5);
+plot(t, h);
+grid on;
+xlabel('Time [s]');
+ylabel('$h$ [m]', 'Interpreter', 'latex');
+title('Altitude', 'Interpreter', 'latex');
+
+subplot(3, 2, 6);
+plot(t, alpha_deg);
+grid on;
+xlabel('Time [s]');
+ylabel('$\alpha$ [deg]', 'Interpreter', 'latex');
+title('Angle of attack', 'Interpreter', 'latex');
+
+sgtitle('Longitudinal dynamics - Longitudinal pulse response - Simulink', 'Interpreter', 'latex');
+
+save_figure('task4_simulink_response.png', keep_title = true);
+
 %% Task 5 – Linearized model – EOM
 % stability.X_u = -0.057076461;
 % stability.X_w = 0.125051144;
@@ -226,31 +275,182 @@ plot(simnl.tout, simnl.alpha.data)
 % stability.Z_T = 0;
 % stability.M_T = 0;
 
-stability = longitudinal_derivatives_Stefano(params, aer, x_trim, u_trim);
+stability = longitudinal_derivatives(params, aer, x_trim, u_trim);
 
-[A, B] = longitudinal_linear_model(params, stability, x_trim);
+[A, B, C, D] = longitudinal_linear_model(params, stability, x_trim);
 
-C = eye(4);
-D = zeros(4,2);
+%% Task 6.1 – Analysis of the linearized system
+% By using the numerical values of stability and
+% control derivatives shown in the table alongside,
+% report the natural frequency and damping ratio
+% associated with the four eigenvalues of the
+% linearized system.
+% Provide comments on the effect of their values on
+% the longitudinal dynamic characteristics.
 
-%% Task 6 - Rivedere
-eigA = eig(A);
-figure
-plot(real(eigA), imag(eigA), "x")
+eig_A = eig(A);
+
+min_real = min(real(eig_A));
+max_real = max(real(eig_A));
+min_imag = min(imag(eig_A));
+max_imag = max(imag(eig_A));
+
+figure;
+plot(real(eig_A), imag(eig_A), "x", 'MarkerSize', 15);
+xlim([min_real - 0.3, max_real + 0.3]);
+ylim([min_imag - 0.3, max_imag + 0.3]);
 grid on;
-title("Eigenvalues of State Matrix A");
+title("Eigenvalues of State Matrix A", Interpreter = 'latex');
 
-w_n = sqrt(abs(real(eigA))); % è giusto ?
-f_n = 2*pi*w_n; 
+save_figure('task6_eigenvalues.png', keep_title = true);
 
-xi_n = cos(atan(imag(eigA)./real(eigA))); % è giusto ?
+w_n = abs(eig_A);
+f_n = 2 * pi * w_n;
 
-% FUNZIONI DI TRASFERIMENTO ....................
-syms s;
-G = C*(s*eye(4) - A)\eye(4)*B(:,1) + D
+xi_n = cos(atan(imag(eig_A) ./ real(eig_A)));
+
+fprintf("Eigenvalues of A:\n");
+disp(eig_A);
+fprintf("Natural frequencies (rad/s):\n");
+disp(w_n);
+fprintf("Natural frequencies (Hz):\n");
+disp(f_n);
+fprintf("Damping ratios:\n");
+disp(xi_n);
+
+%% Task 6.2 – Analysis of the linearized system
+% Considering the elevator deflection as the control input,
+% plot the Bode diagram (magnitude and phase) and comment
+% the resulting behaviour of the following transfer functions:
+
+f_amplitude = @(omega) abs(C / (1i * omega * eye(size(A)) - A) * B + D);
+f_phase = @(omega) angle(C / (1i * omega * eye(size(A)) - A) * B + D);
+
+omega = logspace(-2, 3, 1000);
+
+G_u_amplitude = arrayfun(@(omega) at(f_amplitude(omega), 1, 1), omega);
+G_w_amplitude = arrayfun(@(omega) at(f_amplitude(omega), 2, 1), omega);
+G_q_amplitude = arrayfun(@(omega) at(f_amplitude(omega), 3, 1), omega);
+G_theta_amplitude = arrayfun(@(omega) at(f_amplitude(omega), 4, 1), omega);
+
+phase_clock = @(x) (x > 0) .* (x - 2 .* pi) + (x <= 0) .* x;
+
+G_u_phase = phase_clock(arrayfun(@(omega) at(f_phase(omega), 1, 1), omega)) .* 180 / pi;
+G_w_phase = phase_clock(arrayfun(@(omega) at(f_phase(omega), 2, 1), omega)) .* 180 / pi;
+G_q_phase = phase_clock(arrayfun(@(omega) at(f_phase(omega), 3, 1), omega)) .* 180 / pi;
+G_theta_phase = phase_clock(arrayfun(@(omega) at(f_phase(omega), 4, 1), omega)) .* 180 / pi;
+
+db = @(x) 20 * log10(x);
+
+[G_u_a, G_u_b] = ss2tf(A, B(:, 1), C(1, :), D(1, 1));
+[G_w_a, G_w_b] = ss2tf(A, B(:, 1), C(2, :), D(2, 1));
+[G_q_a, G_q_b] = ss2tf(A, B(:, 1), C(3, :), D(3, 1));
+[G_theta_a, G_theta_b] = ss2tf(A, B(:, 1), C(4, :), D(4, 1));
+
+G_u = tf(G_u_a, G_u_b);
+G_w = tf(G_w_a, G_w_b);
+G_q = tf(G_q_a, G_q_b);
+G_theta = tf(G_theta_a, G_theta_b);
+
+[G_u_amplitude_asymp, G_u_phase_asymp] = asymp_bode(G_u, omega);
+[G_w_amplitude_asymp, G_w_phase_asymp] = asymp_bode(G_w, omega);
+[G_q_amplitude_asymp, G_q_phase_asymp] = asymp_bode(G_q, omega);
+[G_theta_amplitude_asymp, G_theta_phase_asymp] = asymp_bode(G_theta, omega);
+
+figure;
+subplot(2, 1, 1);
+semilogx(omega, db(G_u_amplitude), 'LineWidth', 1.5);
+hold on;
+semilogx(omega, db(G_u_amplitude_asymp), 'LineWidth', 1.5, 'LineStyle', '--');
+grid on;
+xlabel('Frequency [rad/s]');
+ylabel('Magnitude [dB]');
+legend('$|G_{u\delta_e}(j\omega)|$', 'Interpreter', 'latex', 'Location', 'Best');
+title('Bode Diagram of the Linearized System - $G_{u\delta_e}$', 'Interpreter', 'latex');
+
+subplot(2, 1, 2);
+semilogx(omega, G_u_phase, 'LineWidth', 1.5);
+hold on;
+semilogx(omega, G_u_phase_asymp, 'LineWidth', 1.5, 'LineStyle', '--');
+grid on;
+xlabel('Frequency [rad/s]');
+ylabel('Phase [°]');
+legend('$\angle G_{u\delta_e}(j\omega)$', 'Interpreter', 'latex', 'Location', 'Best');
+title('Bode Diagram of the Linearized System - $G_{u\delta_e}(j\omega)$', 'Interpreter', 'latex');
+
+save_figure('task6_bode_G_u.png', keep_title = true);
+
+figure;
+subplot(2, 1, 1);
+semilogx(omega, db(G_w_amplitude), 'LineWidth', 1.5);
+hold on;
+semilogx(omega, db(G_w_amplitude_asymp), 'LineWidth', 1.5, 'LineStyle', '--');
+grid on;
+xlabel('Frequency [rad/s]');
+ylabel('Magnitude [dB]');
+legend('$|G_{w\delta_e}(j\omega)|$', 'Interpreter', 'latex', 'Location', 'Best');
+title('Bode Diagram of the Linearized System - $G_{w\delta_e}$', 'Interpreter', 'latex');
+
+subplot(2, 1, 2);
+semilogx(omega, G_w_phase, 'LineWidth', 1.5);
+hold on;
+semilogx(omega, G_w_phase_asymp, 'LineWidth', 1.5, 'LineStyle', '--');
+grid on;
+xlabel('Frequency [rad/s]');
+ylabel('Phase [°]');
+legend('$\angle G_{w\delta_e}(j\omega)$', 'Interpreter', 'latex', 'Location', 'Best');
+title('Bode Diagram of the Linearized System - $G_{w\delta_e}(j\omega)$', 'Interpreter', 'latex');
+
+save_figure('task6_bode_G_w.png', keep_title = true);
+
+figure;
+subplot(2, 1, 1);
+semilogx(omega, db(G_q_amplitude), 'LineWidth', 1.5);
+hold on;
+semilogx(omega, db(G_q_amplitude_asymp), 'LineWidth', 1.5, 'LineStyle', '--');
+grid on;
+xlabel('Frequency [rad/s]');
+ylabel('Magnitude [dB]');
+legend('$|G_{q\delta_e}(j\omega)|$', 'Interpreter', 'latex', 'Location', 'Best');
+title('Bode Diagram of the Linearized System - $G_{q\delta_e}$', 'Interpreter', 'latex');
+
+subplot(2, 1, 2);
+semilogx(omega, G_q_phase, 'LineWidth', 1.5);
+hold on;
+semilogx(omega, G_q_phase_asymp, 'LineWidth', 1.5, 'LineStyle', '--');
+grid on;
+xlabel('Frequency [rad/s]');
+ylabel('Phase [°]');
+legend('$\angle G_{q\delta_e}(j\omega)$', 'Interpreter', 'latex', 'Location', 'Best');
+title('Bode Diagram of the Linearized System - $G_{q\delta_e}(j\omega)$', 'Interpreter', 'latex');
+
+save_figure('task6_bode_G_q.png', keep_title = true);
+
+figure;
+subplot(2, 1, 1);
+semilogx(omega, db(G_theta_amplitude), 'LineWidth', 1.5);
+hold on;
+semilogx(omega, db(G_theta_amplitude_asymp), 'LineWidth', 1.5, 'LineStyle', '--');
+grid on;
+xlabel('Frequency [rad/s]');
+ylabel('Magnitude [dB]');
+legend('$|G_{\theta\delta_e}(j\omega)|$', 'Interpreter', 'latex', 'Location', 'Best');
+title('Bode Diagram of the Linearized System - $G_{\theta\delta_e}$', 'Interpreter', 'latex');
+
+subplot(2, 1, 2);
+semilogx(omega, G_theta_phase, 'LineWidth', 1.5);
+hold on;
+semilogx(omega, G_theta_phase_asymp, 'LineWidth', 1.5, 'LineStyle', '--');
+grid on;
+xlabel('Frequency [rad/s]');
+ylabel('Phase [°]');
+legend('$\angle G_{\theta\delta_e}(j\omega)$', 'Interpreter', 'latex', 'Location', 'Best');
+title('Bode Diagram of the Linearized System - $G_{\theta\delta_e}(j\omega)$', 'Interpreter', 'latex');
+
+save_figure('task6_bode_G_theta.png', keep_title = true);
+
 %% Task 7 – Linear response to elevator pulse
 
-% MANCA PLOT H ! 
 x0 = zeros(4, 1);
 delta_delta = @(t) (t >= 5 & t <= 10) * (-1 * pi / 180); % elevator deflection [rad]
 delta_input = @(t) [delta_delta(t); 0];
@@ -258,14 +458,101 @@ delta_input = @(t) [delta_delta(t); 0];
 tspan = [0 100]; % time span
 odefun = @(t, delta_x) A * delta_x + B * delta_input(t);
 [t_lin, delta_x] = ode45(odefun, tspan, x0); % solve the ODE
+delta_y = arrayfun(@(idx) C * delta_x(idx, :)' + D * delta_input(t_lin(idx)), 1:length(t_lin), 'UniformOutput', false);
+delta_y = cell2mat(delta_y)';
 
-u_lin = delta_x(:, 1) + x_trim(1);
-w_lin = delta_x(:, 2) + x_trim(2);
-q_lin = delta_x(:, 3) + x_trim(3);
+u_lin = delta_y(:, 1) + x_trim(1);
+w_lin = delta_y(:, 2) + x_trim(2);
+q_lin = delta_y(:, 3) + x_trim(3);
 q_deg_lin = q_lin * 180 / pi;
-theta_lin = delta_x(:, 4) + x_trim(4);
+theta_lin = delta_y(:, 4) + x_trim(4);
 theta_deg_lin = theta_lin * 180 / pi;
-alpha_lin = atan(w_lin ./ u_lin);
+alpha_lin = delta_y(:, 6) + x_trim(4);
+alpha_deg_lin = alpha_lin * 180 / pi;
+
+delta_h_dot_lin = delta_y(:, 5);
+[~, delta_h_lin] = ode45(@(t, ~) interp1(t_lin, delta_h_dot_lin, t, 'spline'), t_lin, 0);
+h_lin = delta_h_lin + x_trim(5);
+
+figure;
+subplot(3, 2, 1);
+plot(t, u, 'DisplayName', 'Nonlinear', 'LineStyle', '--');
+hold on;
+plot(t_lin, u_lin, 'DisplayName', 'Linearized');
+grid on;
+xlabel('Time [s]');
+ylabel('$u$ [m/s]', 'Interpreter', 'latex');
+title('Forward speed', 'Interpreter', 'latex');
+legend('Interpreter', 'latex')
+
+subplot(3, 2, 2);
+plot(t, w, 'DisplayName', 'Nonlinear', 'LineStyle', '--');
+hold on;
+plot(t_lin, w_lin, 'DisplayName', 'Linearized');
+grid on;
+xlabel('Time [s]');
+ylabel('$w$ [m/s]', 'Interpreter', 'latex');
+title('Heave velocity', 'Interpreter', 'latex');
+legend('Interpreter', 'latex')
+
+subplot(3, 2, 3);
+plot(t, q_deg, 'DisplayName', 'Nonlinear', 'LineStyle', '--');
+hold on;
+plot(t_lin, q_deg_lin, 'DisplayName', 'Linearized');
+grid on;
+xlabel('Time [s]');
+ylabel('$q$ [deg/s]', 'Interpreter', 'latex');
+title('Pitch rate', 'Interpreter', 'latex');
+legend('Interpreter', 'latex')
+
+subplot(3, 2, 4);
+plot(t, theta_deg, 'DisplayName', 'Nonlinear', 'LineStyle', '--');
+hold on;
+plot(t_lin, theta_deg_lin, 'DisplayName', 'Linearized');
+grid on;
+xlabel('Time [s]');
+ylabel('$\theta$ [deg]', 'Interpreter', 'latex');
+title('Pitch attitude', 'Interpreter', 'latex');
+legend('Interpreter', 'latex')
+
+subplot(3, 2, 5);
+plot(t, alpha_deg, 'DisplayName', 'Nonlinear', 'LineStyle', '--');
+hold on;
+plot(t_lin, alpha_deg_lin, 'DisplayName', 'Linearized');
+grid on;
+xlabel('Time [s]');
+ylabel('$\alpha$ [deg]', 'Interpreter', 'latex');
+title('Angle of attack', 'Interpreter', 'latex');
+legend('Interpreter', 'latex')
+
+subplot(3, 2, 6);
+plot(t, h, 'DisplayName', 'Nonlinear', 'LineStyle', '--');
+hold on;
+plot(t_lin, h_lin, 'DisplayName', 'Linearized');
+grid on;
+xlabel('Time [s]');
+ylabel('$h$ [m]', 'Interpreter', 'latex');
+title('Altitude', 'Interpreter', 'latex');
+legend('Interpreter', 'latex')
+
+sgtitle('Longitudinal dynamics - Linearized model', 'Interpreter', 'latex');
+
+save_figure('task7_linear_response.png', keep_title = true);
+
+%% Task 8 - Simulink
+
+sim_l = sim("task8_simulink.slx");
+
+t_lin = sim_l.tout;
+u_lin = sim_l.x_lin.signals.values(:, 1);
+w_lin = sim_l.x_lin.signals.values(:, 2);
+q_dot_lin = sim_l.x_lin.signals.values(:, 3);
+theta_dot_lin = sim_l.x_lin.signals.values(:, 4);
+h_lin = sim_l.h_lin;
+alpha_lin = sim_l.alpha_lin;
+
+q_deg_lin = q_dot_lin * 180 / pi;
+theta_deg_lin = theta_dot_lin * 180 / pi;
 alpha_deg_lin = alpha_lin * 180 / pi;
 
 figure;
@@ -309,7 +596,7 @@ ylabel('$\theta$ [deg]', 'Interpreter', 'latex');
 title('Pitch attitude', 'Interpreter', 'latex');
 legend('Interpreter', 'latex')
 
-subplot(3, 2, [5 6]);
+subplot(3, 2, 5);
 plot(t, alpha_deg, 'DisplayName', 'Nonlinear', 'LineStyle', '--');
 hold on;
 plot(t_lin, alpha_deg_lin, 'DisplayName', 'Linearized');
@@ -319,29 +606,16 @@ ylabel('$\alpha$ [deg]', 'Interpreter', 'latex');
 title('Angle of attack', 'Interpreter', 'latex');
 legend('Interpreter', 'latex')
 
-sgtitle('Longitudinal dynamics - Linearized model', 'Interpreter', 'latex');
+subplot(3, 2, 6);
+plot(t, h, 'DisplayName', 'Nonlinear', 'LineStyle', '--');
+hold on;
+plot(t_lin, h_lin, 'DisplayName', 'Linearized');
+grid on;
+xlabel('Time [s]');
+ylabel('$h$ [m]', 'Interpreter', 'latex');
+title('Altitude', 'Interpreter', 'latex');
+legend('Interpreter', 'latex')
 
-save_figure('task7_linear_response.png', keep_title = true);
+sgtitle('Longitudinal dynamics - Linearized model - Simulink', 'Interpreter', 'latex');
 
-%% Task 8 - Simulink
-% controllare
-clc;
-% cambiare nome a L!
-L = [sin(x_trim(4)), -cos(x_trim(4)), x_trim(1)*cos(x_trim(4)) + x_trim(2)*sin(x_trim(4));...
-    (-x_trim(2)/x_trim(1)^2) / (1 + (x_trim(2)/x_trim(1))^2), (1 / x_trim(1)) / (1 + (x_trim(2)/x_trim(1))^2), 0];
-siml = sim("task8_simulink.slx");
-% figure
-% plot(siml.tout, siml.delta*180/pi)
-figure
-for idx = 1:4
-    subplot(2,3,idx);
-    plot(siml.tout, siml.y.signals.values(:, idx))
-    grid on
-end
-subplot(2,3,5)
-plot(siml.tout, siml.h)
-grid on
-subplot(2,3,6)
-plot(siml.tout, siml.alpha)
-grid on
-
+save_figure('task8_linear_response_simulink.png', keep_title = true);

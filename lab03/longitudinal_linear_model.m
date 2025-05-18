@@ -1,4 +1,4 @@
-function [A, B] = longitudinal_linear_model(params, stability, x_eq)
+function [A, B, C, D] = longitudinal_linear_model(params, stability, x_eq)
     % LONGITUDINAL_LINEAR_MODEL Returns the longitudinal linear model of the aircraft
     %
     % [A, B] = longitudinal_linear_model(params, stability, x_eq)
@@ -11,6 +11,8 @@ function [A, B] = longitudinal_linear_model(params, stability, x_eq)
     % Output arguments:
     % A           [4x4]          state matrix of the longitudinal linear model
     % B           [4x2]          input matrix of the longitudinal linear model
+    % C           [6x4]          output matrix of the longitudinal linear model
+    % D           [6x2]          feed-forward matrix of the longitudinal linear model
 
     X_u = stability.X_u;
     X_w = stability.X_w;
@@ -48,4 +50,18 @@ function [A, B] = longitudinal_linear_model(params, stability, x_eq)
          M_delta, M_T;
          0, 0;
          ];
+    C = [
+         1, 0, 0, 0;
+         0, 1, 0, 0;
+         0, 0, 1, 0;
+         0, 0, 0, 1;
+         sin(theta_eq), -cos(theta_eq), 0, (u_eq * cos(theta_eq) + w_eq * sin(theta_eq));
+         (-w_eq / u_eq ^ 2) / (1 + (w_eq / u_eq) ^ 2), (1 / u_eq) / (1 + (w_eq / u_eq) ^ 2), 0, 0;
+         ];
+    D = [0, 0;
+         0, 0;
+         0, 0;
+         0, 0;
+         0, 0;
+         0, 0];
 end
