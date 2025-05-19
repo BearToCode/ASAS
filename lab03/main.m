@@ -116,6 +116,59 @@ sgtitle('Longitudinal dynamics', 'Interpreter', 'latex');
 
 save_figure('task2_trim.png', keep_title = true);
 
+figure;
+subplot(3, 2, 1);
+plot(t, u);
+ylim([60, 63]);
+grid on;
+xlabel('Time [s]');
+ylabel('$u$ [m/s]', 'Interpreter', 'latex');
+title('Forward speed', 'Interpreter', 'latex');
+
+subplot(3, 2, 2);
+plot(t, w);
+ylim([0.85, 0.95]);
+grid on;
+xlabel('Time [s]');
+ylabel('$w$ [m/s]', 'Interpreter', 'latex');
+title('Heave velocity', 'Interpreter', 'latex');
+
+subplot(3, 2, 3);
+plot(t, q_deg);
+ylim([-0.1, 0.1]);
+grid on;
+xlabel('Time [s]');
+ylabel('q [deg/s]', 'Interpreter', 'latex');
+title('Pitch rate', 'Interpreter', 'latex');
+
+subplot(3, 2, 4);
+plot(t, theta_deg);
+ylim([0.8, 0.9]);
+grid on;
+xlabel('Time [s]');
+ylabel('$\theta$ [deg]', 'Interpreter', 'latex');
+title('Pitch attitude', 'Interpreter', 'latex');
+
+subplot(3, 2, 5);
+plot(t, h);
+ylim([-0.1, 0.1]);
+grid on;
+xlabel('Time [s]');
+ylabel('$h$ [m]', 'Interpreter', 'latex');
+title('Altitude', 'Interpreter', 'latex');
+
+subplot(3, 2, 6);
+plot(t, alpha_deg);
+ylim([0.8, 0.9]);
+grid on;
+xlabel('Time [s]');
+ylabel('$\alpha$ [deg]', 'Interpreter', 'latex');
+title('Angle of attack', 'Interpreter', 'latex');
+
+sgtitle('Longitudinal dynamics', 'Interpreter', 'latex');
+
+save_figure('task2_trim_rescaled.png', keep_title = true);
+
 %% Task 3 - Nonlinear response to elevator pulse
 % Starting from the initial condition corresponding to x(0) = x_trim,
 % develop a MATLAB® code to simulate the nonlinear response of the
