@@ -423,6 +423,26 @@ G_w = tf(G_w_a, G_w_b);
 G_q = tf(G_q_a, G_q_b);
 G_theta = tf(G_theta_a, G_theta_b);
 
+figure;
+subplot(2, 2, 1);
+pzmap(G_u);
+grid on;
+title('Pole-Zero Map of $G_{u\delta_e}$', 'Interpreter', 'latex');
+subplot(2, 2, 2);
+pzmap(G_w);
+grid on;
+title('Pole-Zero Map of $G_{w\delta_e}$', 'Interpreter', 'latex');
+subplot(2, 2, 3);
+pzmap(G_q);
+grid on;
+title('Pole-Zero Map of $G_{q\delta_e}$', 'Interpreter', 'latex');
+subplot(2, 2, 4);
+pzmap(G_theta);
+grid on;
+title('Pole-Zero Map of $G_{\theta\delta_e}$', 'Interpreter', 'latex');
+
+save_figure('task6_pzmap_composite.png', keep_title = true);
+
 [G_u_amplitude_asymp, G_u_phase_asymp] = asymp_bode(G_u, omega);
 [G_w_amplitude_asymp, G_w_phase_asymp] = asymp_bode(G_w, omega);
 [G_q_amplitude_asymp, G_q_phase_asymp] = asymp_bode(G_q, omega);
