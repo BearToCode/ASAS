@@ -70,42 +70,42 @@ alpha = atan(w ./ u);
 alpha_deg = alpha * 180 / pi;
 
 figure;
-subplot(3, 2, 1);
+subplot(2, 3, 1);
 plot(t, u);
 grid on;
 xlabel('Time [s]');
 ylabel('$u$ [m/s]', 'Interpreter', 'latex');
 title('Forward speed', 'Interpreter', 'latex');
 
-subplot(3, 2, 2);
+subplot(2, 3, 2);
 plot(t, w);
 grid on;
 xlabel('Time [s]');
 ylabel('$w$ [m/s]', 'Interpreter', 'latex');
 title('Heave velocity', 'Interpreter', 'latex');
 
-subplot(3, 2, 3);
+subplot(2, 3, 3);
 plot(t, q_deg);
 grid on;
 xlabel('Time [s]');
 ylabel('q [deg/s]', 'Interpreter', 'latex');
 title('Pitch rate', 'Interpreter', 'latex');
 
-subplot(3, 2, 4);
+subplot(2, 3, 4);
 plot(t, theta_deg);
 grid on;
 xlabel('Time [s]');
 ylabel('$\theta$ [deg]', 'Interpreter', 'latex');
 title('Pitch attitude', 'Interpreter', 'latex');
 
-subplot(3, 2, 5);
+subplot(2, 3, 5);
 plot(t, h);
 grid on;
 xlabel('Time [s]');
 ylabel('$h$ [m]', 'Interpreter', 'latex');
 title('Altitude', 'Interpreter', 'latex');
 
-subplot(3, 2, 6);
+subplot(2, 3, 6);
 plot(t, alpha_deg);
 grid on;
 xlabel('Time [s]');
@@ -114,10 +114,10 @@ title('Angle of attack', 'Interpreter', 'latex');
 
 sgtitle('Longitudinal dynamics', 'Interpreter', 'latex');
 
-save_figure('task2_trim.png', keep_title = true);
+save_figure('task2_trim.png', keep_title = true, aspect_ratio_multiplier = 1.5);
 
 figure;
-subplot(3, 2, 1);
+subplot(2, 3, 1);
 plot(t, u);
 ylim([60, 63]);
 grid on;
@@ -125,7 +125,7 @@ xlabel('Time [s]');
 ylabel('$u$ [m/s]', 'Interpreter', 'latex');
 title('Forward speed', 'Interpreter', 'latex');
 
-subplot(3, 2, 2);
+subplot(2, 3, 2);
 plot(t, w);
 ylim([0.85, 0.95]);
 grid on;
@@ -133,7 +133,7 @@ xlabel('Time [s]');
 ylabel('$w$ [m/s]', 'Interpreter', 'latex');
 title('Heave velocity', 'Interpreter', 'latex');
 
-subplot(3, 2, 3);
+subplot(2, 3, 3);
 plot(t, q_deg);
 ylim([-0.1, 0.1]);
 grid on;
@@ -141,7 +141,7 @@ xlabel('Time [s]');
 ylabel('q [deg/s]', 'Interpreter', 'latex');
 title('Pitch rate', 'Interpreter', 'latex');
 
-subplot(3, 2, 4);
+subplot(2, 3, 4);
 plot(t, theta_deg);
 ylim([0.8, 0.9]);
 grid on;
@@ -149,7 +149,7 @@ xlabel('Time [s]');
 ylabel('$\theta$ [deg]', 'Interpreter', 'latex');
 title('Pitch attitude', 'Interpreter', 'latex');
 
-subplot(3, 2, 5);
+subplot(2, 3, 5);
 plot(t, h);
 ylim([-0.1, 0.1]);
 grid on;
@@ -157,7 +157,7 @@ xlabel('Time [s]');
 ylabel('$h$ [m]', 'Interpreter', 'latex');
 title('Altitude', 'Interpreter', 'latex');
 
-subplot(3, 2, 6);
+subplot(2, 3, 6);
 plot(t, alpha_deg);
 ylim([0.8, 0.9]);
 grid on;
@@ -167,7 +167,7 @@ title('Angle of attack', 'Interpreter', 'latex');
 
 sgtitle('Longitudinal dynamics', 'Interpreter', 'latex');
 
-save_figure('task2_trim_rescaled.png', keep_title = true);
+save_figure('task2_trim_rescaled.png', keep_title = true, aspect_ratio_multiplier = 1.5);
 
 %% Task 3 - Nonlinear response to elevator pulse
 % Starting from the initial condition corresponding to x(0) = x_trim,
@@ -199,51 +199,69 @@ alpha = atan(w ./ u);
 alpha_deg = alpha * 180 / pi;
 
 figure;
-subplot(3, 2, 1);
+subplot(2, 3, 1);
 plot(t, u);
 grid on;
 xlabel('Time [s]');
 ylabel('$u$ [m/s]', 'Interpreter', 'latex');
+yyaxis right;
+plot(t, delta(t) .* 180 / pi, 'DisplayName', '$\delta$', 'LineStyle', '--');
+ylabel('$\delta$ [deg]', 'Interpreter', 'latex');
 title('Forward speed', 'Interpreter', 'latex');
 
-subplot(3, 2, 2);
+subplot(2, 3, 2);
 plot(t, w);
 grid on;
 xlabel('Time [s]');
 ylabel('$w$ [m/s]', 'Interpreter', 'latex');
+yyaxis right;
+plot(t, delta(t) .* 180 / pi, 'DisplayName', '$\delta$', 'LineStyle', '--');
+ylabel('$\delta$ [deg]', 'Interpreter', 'latex');
 title('Heave velocity', 'Interpreter', 'latex');
 
-subplot(3, 2, 3);
+subplot(2, 3, 3);
 plot(t, q_deg);
 grid on;
 xlabel('Time [s]');
 ylabel('$q$ [deg/s]', 'Interpreter', 'latex');
+yyaxis right;
+plot(t, delta(t) .* 180 / pi, 'DisplayName', '$\delta$', 'LineStyle', '--');
+ylabel('$\delta$ [deg]', 'Interpreter', 'latex');
 title('Pitch rate', 'Interpreter', 'latex');
 
-subplot(3, 2, 4);
+subplot(2, 3, 4);
 plot(t, theta_deg);
 grid on;
 xlabel('Time [s]');
 ylabel('$\theta$ [deg]', 'Interpreter', 'latex');
+yyaxis right;
+plot(t, delta(t) .* 180 / pi, 'DisplayName', '$\delta$', 'LineStyle', '--');
+ylabel('$\delta$ [deg]', 'Interpreter', 'latex');
 title('Pitch attitude', 'Interpreter', 'latex');
 
-subplot(3, 2, 5);
+subplot(2, 3, 5);
 plot(t, h);
 grid on;
 xlabel('Time [s]');
 ylabel('$h$ [m]', 'Interpreter', 'latex');
+yyaxis right;
+plot(t, delta(t) .* 180 / pi, 'DisplayName', '$\delta$', 'LineStyle', '--');
+ylabel('$\delta$ [deg]', 'Interpreter', 'latex');
 title('Altitude', 'Interpreter', 'latex');
 
-subplot(3, 2, 6);
+subplot(2, 3, 6);
 plot(t, alpha_deg);
 grid on;
 xlabel('Time [s]');
 ylabel('$\alpha$ [deg]', 'Interpreter', 'latex');
+yyaxis right;
+plot(t, delta(t) .* 180 / pi, 'DisplayName', '$\delta$', 'LineStyle', '--');
+ylabel('$\delta$ [deg]', 'Interpreter', 'latex');
 title('Angle of attack', 'Interpreter', 'latex');
 
 sgtitle('Longitudinal dynamics - Longitudinal pulse response', 'Interpreter', 'latex');
 
-save_figure('task3_nonlinear_response.png', keep_title = true);
+save_figure('task3_nonlinear_response.png', keep_title = true, aspect_ratio_multiplier = 1.5);
 
 %% Task 4 – Nonlinear response to elevator pulse (Simulink)
 % Repeat Task 3 using a Simulink model.
@@ -261,42 +279,42 @@ alpha = atan(w ./ u);
 alpha_deg = alpha * 180 / pi;
 
 figure;
-subplot(3, 2, 1);
+subplot(2, 3, 1);
 plot(t, u);
 grid on;
 xlabel('Time [s]');
 ylabel('$u$ [m/s]', 'Interpreter', 'latex');
 title('Forward speed', 'Interpreter', 'latex');
 
-subplot(3, 2, 2);
+subplot(2, 3, 2);
 plot(t, w);
 grid on;
 xlabel('Time [s]');
 ylabel('$w$ [m/s]', 'Interpreter', 'latex');
 title('Heave velocity', 'Interpreter', 'latex');
 
-subplot(3, 2, 3);
+subplot(2, 3, 3);
 plot(t, q_deg);
 grid on;
 xlabel('Time [s]');
 ylabel('$q$ [deg/s]', 'Interpreter', 'latex');
 title('Pitch rate', 'Interpreter', 'latex');
 
-subplot(3, 2, 4);
+subplot(2, 3, 4);
 plot(t, theta_deg);
 grid on;
 xlabel('Time [s]');
 ylabel('$\theta$ [deg]', 'Interpreter', 'latex');
 title('Pitch attitude', 'Interpreter', 'latex');
 
-subplot(3, 2, 5);
+subplot(2, 3, 5);
 plot(t, h);
 grid on;
 xlabel('Time [s]');
 ylabel('$h$ [m]', 'Interpreter', 'latex');
 title('Altitude', 'Interpreter', 'latex');
 
-subplot(3, 2, 6);
+subplot(2, 3, 6);
 plot(t, alpha_deg);
 grid on;
 xlabel('Time [s]');
@@ -305,7 +323,7 @@ title('Angle of attack', 'Interpreter', 'latex');
 
 sgtitle('Longitudinal dynamics - Longitudinal pulse response - Simulink', 'Interpreter', 'latex');
 
-save_figure('task4_simulink_response.png', keep_title = true);
+save_figure('task4_simulink_response.png', keep_title = true, aspect_ratio_multiplier = 1.5);
 
 %% Task 5 – Linearized model – EOM
 % stability.X_u = -0.057076461;
@@ -355,7 +373,7 @@ ylim([min_imag - 0.3, max_imag + 0.3]);
 grid on;
 title("Eigenvalues of State Matrix A", Interpreter = 'latex');
 
-save_figure('task6_eigenvalues.png', keep_title = true);
+save_figure('task6_eigenvalues.png', keep_title = false);
 
 w_n = abs(eig_A);
 f_n = 2 * pi * w_n;
@@ -404,6 +422,26 @@ G_u = tf(G_u_a, G_u_b);
 G_w = tf(G_w_a, G_w_b);
 G_q = tf(G_q_a, G_q_b);
 G_theta = tf(G_theta_a, G_theta_b);
+
+figure;
+subplot(2, 2, 1);
+pzmap(G_u);
+grid on;
+title('Pole-Zero Map of $G_{u\delta_e}$', 'Interpreter', 'latex');
+subplot(2, 2, 2);
+pzmap(G_w);
+grid on;
+title('Pole-Zero Map of $G_{w\delta_e}$', 'Interpreter', 'latex');
+subplot(2, 2, 3);
+pzmap(G_q);
+grid on;
+title('Pole-Zero Map of $G_{q\delta_e}$', 'Interpreter', 'latex');
+subplot(2, 2, 4);
+pzmap(G_theta);
+grid on;
+title('Pole-Zero Map of $G_{\theta\delta_e}$', 'Interpreter', 'latex');
+
+save_figure('task6_pzmap_composite.png', keep_title = true);
 
 [G_u_amplitude_asymp, G_u_phase_asymp] = asymp_bode(G_u, omega);
 [G_w_amplitude_asymp, G_w_phase_asymp] = asymp_bode(G_w, omega);
@@ -528,7 +566,7 @@ delta_h_dot_lin = delta_y(:, 5);
 h_lin = delta_h_lin + x_trim(5);
 
 figure;
-subplot(3, 2, 1);
+subplot(2, 3, 1);
 plot(t, u, 'DisplayName', 'Nonlinear', 'LineStyle', '--');
 hold on;
 plot(t_lin, u_lin, 'DisplayName', 'Linearized');
@@ -538,7 +576,7 @@ ylabel('$u$ [m/s]', 'Interpreter', 'latex');
 title('Forward speed', 'Interpreter', 'latex');
 legend('Interpreter', 'latex')
 
-subplot(3, 2, 2);
+subplot(2, 3, 2);
 plot(t, w, 'DisplayName', 'Nonlinear', 'LineStyle', '--');
 hold on;
 plot(t_lin, w_lin, 'DisplayName', 'Linearized');
@@ -548,7 +586,7 @@ ylabel('$w$ [m/s]', 'Interpreter', 'latex');
 title('Heave velocity', 'Interpreter', 'latex');
 legend('Interpreter', 'latex')
 
-subplot(3, 2, 3);
+subplot(2, 3, 3);
 plot(t, q_deg, 'DisplayName', 'Nonlinear', 'LineStyle', '--');
 hold on;
 plot(t_lin, q_deg_lin, 'DisplayName', 'Linearized');
@@ -558,7 +596,7 @@ ylabel('$q$ [deg/s]', 'Interpreter', 'latex');
 title('Pitch rate', 'Interpreter', 'latex');
 legend('Interpreter', 'latex')
 
-subplot(3, 2, 4);
+subplot(2, 3, 4);
 plot(t, theta_deg, 'DisplayName', 'Nonlinear', 'LineStyle', '--');
 hold on;
 plot(t_lin, theta_deg_lin, 'DisplayName', 'Linearized');
@@ -568,7 +606,7 @@ ylabel('$\theta$ [deg]', 'Interpreter', 'latex');
 title('Pitch attitude', 'Interpreter', 'latex');
 legend('Interpreter', 'latex')
 
-subplot(3, 2, 5);
+subplot(2, 3, 5);
 plot(t, alpha_deg, 'DisplayName', 'Nonlinear', 'LineStyle', '--');
 hold on;
 plot(t_lin, alpha_deg_lin, 'DisplayName', 'Linearized');
@@ -578,7 +616,7 @@ ylabel('$\alpha$ [deg]', 'Interpreter', 'latex');
 title('Angle of attack', 'Interpreter', 'latex');
 legend('Interpreter', 'latex')
 
-subplot(3, 2, 6);
+subplot(2, 3, 6);
 plot(t, h, 'DisplayName', 'Nonlinear', 'LineStyle', '--');
 hold on;
 plot(t_lin, h_lin, 'DisplayName', 'Linearized');
@@ -590,7 +628,7 @@ legend('Interpreter', 'latex')
 
 sgtitle('Longitudinal dynamics - Linearized model', 'Interpreter', 'latex');
 
-save_figure('task7_linear_response.png', keep_title = true);
+save_figure('task7_linear_response.png', keep_title = true, aspect_ratio_multiplier = 1.5);
 
 %% Task 8 - Simulink
 
@@ -609,7 +647,7 @@ theta_deg_lin = theta_dot_lin * 180 / pi;
 alpha_deg_lin = alpha_lin * 180 / pi;
 
 figure;
-subplot(3, 2, 1);
+subplot(2, 3, 1);
 plot(t, u, 'DisplayName', 'Nonlinear', 'LineStyle', '--');
 hold on;
 plot(t_lin, u_lin, 'DisplayName', 'Linearized');
@@ -619,7 +657,7 @@ ylabel('$u$ [m/s]', 'Interpreter', 'latex');
 title('Forward speed', 'Interpreter', 'latex');
 legend('Interpreter', 'latex')
 
-subplot(3, 2, 2);
+subplot(2, 3, 2);
 plot(t, w, 'DisplayName', 'Nonlinear', 'LineStyle', '--');
 hold on;
 plot(t_lin, w_lin, 'DisplayName', 'Linearized');
@@ -629,7 +667,7 @@ ylabel('$w$ [m/s]', 'Interpreter', 'latex');
 title('Heave velocity', 'Interpreter', 'latex');
 legend('Interpreter', 'latex')
 
-subplot(3, 2, 3);
+subplot(2, 3, 3);
 plot(t, q_deg, 'DisplayName', 'Nonlinear', 'LineStyle', '--');
 hold on;
 plot(t_lin, q_deg_lin, 'DisplayName', 'Linearized');
@@ -639,7 +677,7 @@ ylabel('$q$ [deg/s]', 'Interpreter', 'latex');
 title('Pitch rate', 'Interpreter', 'latex');
 legend('Interpreter', 'latex')
 
-subplot(3, 2, 4);
+subplot(2, 3, 4);
 plot(t, theta_deg, 'DisplayName', 'Nonlinear', 'LineStyle', '--');
 hold on;
 plot(t_lin, theta_deg_lin, 'DisplayName', 'Linearized');
@@ -649,7 +687,7 @@ ylabel('$\theta$ [deg]', 'Interpreter', 'latex');
 title('Pitch attitude', 'Interpreter', 'latex');
 legend('Interpreter', 'latex')
 
-subplot(3, 2, 5);
+subplot(2, 3, 5);
 plot(t, alpha_deg, 'DisplayName', 'Nonlinear', 'LineStyle', '--');
 hold on;
 plot(t_lin, alpha_deg_lin, 'DisplayName', 'Linearized');
@@ -659,7 +697,7 @@ ylabel('$\alpha$ [deg]', 'Interpreter', 'latex');
 title('Angle of attack', 'Interpreter', 'latex');
 legend('Interpreter', 'latex')
 
-subplot(3, 2, 6);
+subplot(2, 3, 6);
 plot(t, h, 'DisplayName', 'Nonlinear', 'LineStyle', '--');
 hold on;
 plot(t_lin, h_lin, 'DisplayName', 'Linearized');
@@ -671,4 +709,4 @@ legend('Interpreter', 'latex')
 
 sgtitle('Longitudinal dynamics - Linearized model - Simulink', 'Interpreter', 'latex');
 
-save_figure('task8_linear_response_simulink.png', keep_title = true);
+save_figure('task8_linear_response_simulink.png', keep_title = true, aspect_ratio_multiplier = 1.5);
