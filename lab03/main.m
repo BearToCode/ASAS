@@ -366,7 +366,7 @@ fprintf("Eigenvalues of A:\n");
 disp(eig_A);
 fprintf("Natural frequencies (rad/s):\n");
 disp(w_n);
-fprintf("Natural frequencies (Hz):\n");
+fprintf("Frequencies (Hz):\n");
 disp(f_n);
 fprintf("Damping ratios:\n");
 disp(xi_n);
