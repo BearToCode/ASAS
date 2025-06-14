@@ -1,8 +1,21 @@
 <script lang="ts">
 	import { pd } from '$lib/control';
+	import { euler } from '$lib/euler';
+	import { heun } from '$lib/heun';
 	import { rk4 } from '$lib/rk4';
 	import { nonlinearSystem, type SystemParams } from '$lib/system';
 	import P5, { type p5, type Sketch } from 'p5-svelte';
+	import {
+		Button,
+		Checkbox,
+		FpsGraph,
+		Pane,
+		Point,
+		Folder,
+		Monitor,
+		List,
+		type ListOptions
+	} from 'svelte-tweakpane-ui';
 
 	const CartWidth = 230;
 	const CartHeight = 50;
@@ -20,6 +33,13 @@
 	let displayPosition = $state(0);
 
 	let controllerActive = $state(true);
+	let isPaused = $state(false);
+	let chosenIntegrator = $state('rk4');
+	const integratorOptions: ListOptions<string> = {
+		Euler: 'euler',
+		Heun: 'heun',
+		'Runge-Kutta 4': 'rk4'
+	};
 
 	let leftPressed = false;
 	let rightPressed = false;
@@ -36,17 +56,39 @@
 	let x0 = [0, 0, 0, 0];
 	let x = $state(x0);
 
-	const Kp_theta = 606;
-	const Kd_theta = 47;
-	const Kp_x = -79;
-	const Kd_x = -46;
+	let stateX = $derived(x[0]);
+	let stateXDot = $derived(x[1]);
+	let stateTheta = $derived(x[2]);
+	let stateThetaDot = $derived(x[3]);
 
-	const controller_theta = pd(Kp_theta, Kd_theta);
-	const controller_x = pd(Kp_x, Kd_x);
+	const Default_Kp_theta = 606;
+	const Default_Kd_theta = 47;
+	const Default_Kp_x = -79;
+	const Default_Kd_x = -46;
+
+	let gainsX = $state({
+		x: Default_Kp_x,
+		y: Default_Kd_x
+	});
+	let gainsTheta = $state({
+		x: Default_Kp_theta,
+		y: Default_Kd_theta
+	});
+
+	let Kp_x = $derived(gainsX.x);
+	let Kd_x = $derived(gainsX.y);
+	let Kp_theta = $derived(gainsTheta.x);
+	let Kd_theta = $derived(gainsTheta.y);
+
+	const controller_theta = $derived(pd(Kp_theta, Kd_theta));
+	const controller_x = $derived(pd(Kp_x, Kd_x));
+
+	let u_theta = $state(0);
+	let u_x = $state(0);
 
 	const controller = (x: number[], thetaRef: number, xRef: number) => {
-		const u_theta = controller_theta(thetaRef - x[2], -x[3]);
-		const u_x = controller_x(xRef - x[0], -x[1]);
+		u_theta = controller_theta(thetaRef - x[2], -x[3]);
+		u_x = controller_x(xRef - x[0], -x[1]);
 		const u = u_theta + u_x;
 
 		if (u > MaxControl) {
@@ -72,7 +114,23 @@
 
 	const odefun = (t: number, x: number[]) =>
 		f(x, controllerActive ? controller(x, thetaRef, xRef) : 0, disturb(t));
-	const integrator = rk4(odefun, x0);
+
+	const eulerIntegrator = euler(odefun, x0);
+	const heunIntegrator = heun(odefun, x0);
+	const rk4Integrator = rk4(odefun, x0);
+
+	const integrator = $derived.by(() => {
+		switch (chosenIntegrator) {
+			case 'euler':
+				return eulerIntegrator;
+			case 'heun':
+				return heunIntegrator;
+			case 'rk4':
+				return rk4Integrator;
+			default:
+				throw new Error(`Unknown integrator: ${chosenIntegrator}`);
+		}
+	});
 
 	const sketch: Sketch = (p5) => {
 		p5.setup = () => {
@@ -86,7 +144,9 @@
 				return;
 			}
 
-			x = integrator.step(dt);
+			if (!isPaused) {
+				x = integrator.step(dt);
+			}
 
 			const theta = x[2];
 
@@ -145,22 +205,109 @@
 	}}
 />
 
-<button
-	class="m-2 cursor-pointer rounded border px-2 py-1"
-	onclick={() => {
-		integrator.reset();
-	}}
->
-	Reset
-</button>
-
-<button
-	onclick={() => (controllerActive = !controllerActive)}
-	class="m-2 cursor-pointer rounded border px-2 py-1"
->
-	{controllerActive ? 'Deactivate' : 'Activate'} controller
-</button>
-
 <main class="h-screen w-screen">
 	<P5 parentDivStyle="width: 100%; height: 100%;" {sketch} />
 </main>
+
+<Pane title="Simulation Controls">
+	<Folder title="Config">
+		<Checkbox bind:value={controllerActive} label="Controller Active" />
+		<Button
+			on:click={() => {
+				integrator.reset();
+			}}
+			title="Reset"
+			label="Reset Simulation"
+		/>
+
+		<Point
+			bind:value={gainsX}
+			expanded={true}
+			label="Gains X (Kp, Kd)"
+			picker="inline"
+			userExpandable={false}
+			optionsX={{
+				min: -100,
+				max: 100,
+				step: 1
+			}}
+			optionsY={{
+				min: -100,
+				max: 100,
+				step: 1
+			}}
+		/>
+
+		<Button
+			on:click={() => {
+				gainsX = {
+					x: Default_Kp_x,
+					y: Default_Kd_x
+				};
+			}}
+			title="Reset"
+			label="Reset Gains X"
+		/>
+
+		<Point
+			bind:value={gainsTheta}
+			expanded={true}
+			label="Gains Theta (Kp, Kd)"
+			picker="inline"
+			userExpandable={false}
+			optionsX={{
+				min: -1000,
+				max: 1000,
+				step: 1
+			}}
+			optionsY={{
+				min: -1000,
+				max: 1000,
+				step: 1
+			}}
+		/>
+
+		<Button
+			on:click={() => {
+				gainsTheta = {
+					x: Default_Kp_theta,
+					y: Default_Kd_theta
+				};
+			}}
+			title="Reset"
+			label="Reset Gains Theta"
+		/>
+
+		<List bind:value={chosenIntegrator} label="Integrator" options={integratorOptions} />
+	</Folder>
+
+	<Folder title="Debug">
+		<Checkbox bind:value={isPaused} label="Pause Simulation" />
+		<FpsGraph interval={50} label="FPS" rows={5} />
+	</Folder>
+</Pane>
+
+<Pane title="System Evolution">
+	<Folder title="State">
+		<Monitor value={stateX} graph label="Cart Position (m)" min={-2} max={+2} />
+		<Monitor value={stateX} />
+		<Monitor value={stateXDot} graph label="Cart Velocity (m/s)" min={-10} max={10} />
+		<Monitor value={stateXDot} />
+		<Monitor value={stateTheta} graph label="Pendulum Angle (rad)" min={-3} max={3} />
+		<Monitor value={stateTheta} />
+		<Monitor
+			value={stateThetaDot}
+			graph
+			label="Pendulum Angular Velocity (rad/s)"
+			min={-10}
+			max={+10}
+		/>
+		<Monitor value={stateThetaDot} />
+	</Folder>
+	<Folder title="Control">
+		<Monitor value={u_x} graph label="Controller X" min={-500} max={500} />
+		<Monitor value={u_x} />
+		<Monitor value={u_theta} graph label="Controller Theta" min={-500} max={500} />
+		<Monitor value={u_theta} />
+	</Folder>
+</Pane>

@@ -26,6 +26,7 @@
     "fprintf",
     "fsolve",
     "genpath",
+    "Heun",
     "ilaplace",
     "imag",
     "interp",

@@ -1,3 +1,5 @@
+import { sumArrays, scalarMul } from './utils';
+
 export function rk4(f: (t: number, x: number[]) => number[], x0: number[]) {
 	let t = 0;
 	let prev_x = x0;
@@ -21,15 +23,4 @@ export function rk4(f: (t: number, x: number[]) => number[], x0: number[]) {
 			prev_x = x0;
 		}
 	};
-}
-
-function sumArrays(...arrays: number[][]) {
-	return arrays.reduce(
-		(accArray, arr) => accArray.map((acc, idx) => acc + arr[idx]),
-		Array(arrays[0].length).fill(0)
-	);
-}
-
-function scalarMul(a: number[], k: number) {
-	return a.map((elem) => elem * k);
 }
