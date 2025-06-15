@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { ab4 } from '$lib/ab4';
 	import { pd } from '$lib/control';
 	import { euler } from '$lib/euler';
 	import { heun } from '$lib/heun';
@@ -41,7 +42,8 @@
 	const integratorOptions: ListOptions<string> = {
 		Euler: 'euler',
 		Heun: 'heun',
-		'Runge-Kutta 4': 'rk4'
+		'Runge-Kutta 4': 'rk4',
+		'Adams-Bashforth (AB4)': 'ab4'
 	};
 
 	let leftPressed = false;
@@ -147,6 +149,7 @@
 	const eulerIntegrator = euler(odefun, x0);
 	const heunIntegrator = heun(odefun, x0);
 	const rk4Integrator = rk4(odefun, x0);
+	const ab4Integrator = ab4(odefun, x0);
 
 	const integrator = $derived.by(() => {
 		switch (chosenIntegrator) {
@@ -156,6 +159,8 @@
 				return heunIntegrator;
 			case 'rk4':
 				return rk4Integrator;
+			case 'ab4':
+				return ab4Integrator;
 			default:
 				throw new Error(`Unknown integrator: ${chosenIntegrator}`);
 		}
