@@ -14,7 +14,10 @@
 		Folder,
 		Monitor,
 		List,
-		type ListOptions
+		type ListOptions,
+		ThemeUtils,
+		Slider,
+		Separator
 	} from 'svelte-tweakpane-ui';
 
 	const CartWidth = 230;
@@ -100,13 +103,39 @@
 		return u;
 	};
 
+	let stepIntensity = $state(10);
+	let disturbanceFrequency = $state(1);
+	let disturbanceAmplitude = $state(10);
+
+	let stepDisturbance = $derived(() => stepIntensity);
+	let waveDisturbance = $derived((t: number) => {
+		return disturbanceAmplitude * Math.sin(disturbanceFrequency * t);
+	});
+
+	let selectedDisturbance = $state<'control' | 'wave' | 'step'>('control');
+	const disturbanceOptions: ListOptions<'control' | 'wave' | 'step'> = {
+		Control: 'control',
+		Wave: 'wave',
+		Step: 'step'
+	};
+
+	let currentDisturbance = $state(0);
+
 	const disturb = (t: number) => {
-		if (leftPressed) {
-			return -DisturbForce;
-		} else if (rightPressed) {
-			return DisturbForce;
+		if (selectedDisturbance === 'control') {
+			if (leftPressed) {
+				currentDisturbance = -DisturbForce;
+			} else if (rightPressed) {
+				currentDisturbance = DisturbForce;
+			} else {
+				currentDisturbance = 0;
+			}
+		} else if (selectedDisturbance === 'wave') {
+			currentDisturbance = waveDisturbance(t);
+		} else if (selectedDisturbance === 'step') {
+			currentDisturbance = stepDisturbance();
 		}
-		return 0;
+		return currentDisturbance;
 	};
 
 	const thetaRef = 0;
@@ -209,7 +238,7 @@
 	<P5 parentDivStyle="width: 100%; height: 100%;" {sketch} />
 </main>
 
-<Pane title="Simulation Controls">
+<Pane title="Simulation Controls" theme={ThemeUtils.presets.light}>
 	<Folder title="Config">
 		<Checkbox bind:value={controllerActive} label="Controller Active" />
 		<Button
@@ -285,9 +314,36 @@
 		<Checkbox bind:value={isPaused} label="Pause Simulation" />
 		<FpsGraph interval={50} label="FPS" rows={5} />
 	</Folder>
+
+	<Folder title="Disturbances">
+		<List bind:value={selectedDisturbance} label="Disturbance Type" options={disturbanceOptions} />
+		<Separator />
+		<Slider
+			bind:value={stepIntensity}
+			label="Step Disturbance Intensity"
+			min={0}
+			max={300}
+			step={1}
+		/>
+		<Separator />
+		<Slider
+			bind:value={disturbanceFrequency}
+			label="Disturbance Frequency"
+			min={0.1}
+			max={100}
+			step={0.1}
+		/>
+		<Slider
+			bind:value={disturbanceAmplitude}
+			label="Disturbance Amplitude"
+			min={0}
+			max={300}
+			step={1}
+		/>
+	</Folder>
 </Pane>
 
-<Pane title="System Evolution">
+<Pane title="System Evolution" theme={ThemeUtils.presets.light}>
 	<Folder title="State">
 		<Monitor value={stateX} graph label="Cart Position (m)" min={-2} max={+2} />
 		<Monitor value={stateX} />
@@ -309,5 +365,16 @@
 		<Monitor value={u_x} />
 		<Monitor value={u_theta} graph label="Controller Theta" min={-500} max={500} />
 		<Monitor value={u_theta} />
+	</Folder>
+	<Folder title="Disturbance">
+		<Monitor
+			value={currentDisturbance}
+			interval={selectedDisturbance === 'control' ? 0.1 : 0}
+			graph
+			label="Disturbance Force"
+			min={-300}
+			max={300}
+		/>
+		<Monitor value={currentDisturbance} />
 	</Folder>
 </Pane>
